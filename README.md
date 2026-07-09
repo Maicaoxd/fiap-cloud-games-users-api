@@ -1,46 +1,145 @@
 ﻿# FIAP Cloud Games - UsersAPI
 
-Microsservico responsavel por usuarios, autenticacao, geracao de JWT e autorizacao.
+Microsservico responsavel por cadastro, autenticacao, geracao de JWT e autorizacao de usuarios da FIAP Cloud Games.
 
-## Status
-
-Base criada para receber a migracao do contexto de usuarios do monolito Fiap Cloud Games.
+Este repositorio faz parte da Fase 2 do Tech Challenge e representa o microsservico independente de usuarios.
 
 ## Responsabilidades
 
 - Cadastrar usuarios.
-- Autenticar usuarios.
-- Gerar JWT.
+- Autenticar usuarios com e-mail e senha.
+- Gerar token JWT.
 - Controlar autorizacao por roles.
+- Persistir usuarios em banco SQL Server proprio.
 - Publicar `UserCreatedEvent` apos cadastro.
+
+## Tecnologias
+
+- .NET 10
+- ASP.NET Core Web API
+- Entity Framework Core
+- SQL Server
+- RabbitMQ
+- MassTransit
+- JWT Bearer
+- Docker
+- xUnit, NSubstitute e Shouldly
 
 ## Estrutura
 
 ```text
 src/UsersAPI/
-  Domain/          Regras e entidades de usuario.
-  Application/     Casos de uso e abstracoes.
-  Infrastructure/  EF Core, repositorios, JWT e integracoes tecnicas.
+  Domain/          Entidades, value objects e regras de dominio.
+  Application/     Casos de uso, comandos, resultados e abstracoes.
+  Infrastructure/  EF Core, repositorios, seguranca, JWT e mensageria.
   Contracts/       Requests, responses e eventos de integracao.
   Controllers/     Endpoints HTTP.
+  Migrations/      Migrations EF Core do banco da UsersAPI.
+
+tests/UsersAPI.Tests/
+  Domain/          Testes de dominio e value objects.
+  Application/     Testes dos casos de uso.
+  Infrastructure/  Testes de JWT e hash de senha.
+  Api/             Testes de controllers, middlewares e configuracoes.
+
 k8s/               Manifestos Kubernetes do servico.
 ```
 
-## Variaveis de ambiente previstas
+## Variaveis de ambiente
 
 | Variavel | Finalidade |
 |---|---|
-| `ConnectionStrings__DefaultConnection` | Banco SQL Server da UsersAPI. |
+| `ConnectionStrings__DefaultConnection` | Connection string do banco SQL Server da UsersAPI. |
 | `Jwt__Issuer` | Emissor do token JWT. |
 | `Jwt__Audience` | Audiencia do token JWT. |
-| `Jwt__Secret` | Chave de assinatura do token JWT. |
+| `Jwt__Secret` | Chave usada para assinar o JWT. |
 | `Jwt__ExpirationMinutes` | Tempo de expiracao do token. |
 | `RabbitMq__Host` | Host do RabbitMQ. |
 | `RabbitMq__VirtualHost` | Virtual host do RabbitMQ. |
 | `RabbitMq__Username` | Usuario do RabbitMQ. |
 | `RabbitMq__Password` | Senha do RabbitMQ. |
 
-## Executar localmente
+Configuracao local padrao em `src/UsersAPI/appsettings.json`:
+
+```text
+SQL Server: localhost,1433
+Database: FiapCloudGamesUsers
+User: sa
+Password: Fcg@123456
+RabbitMQ: localhost
+RabbitMQ Management: http://localhost:15672
+```
+
+Observacao: os segredos deste repositorio sao apenas para desenvolvimento local academico.
+
+## Subir dependencias locais
+
+O arquivo `docker-compose.dev.yml` sobe apenas as dependencias da UsersAPI:
+
+- SQL Server
+- RabbitMQ com Management UI
+
+```powershell
+cd C:\Projetos\FIAP\Projetos\fiap-cloud-games-users-api
+
+docker compose -f docker-compose.dev.yml up -d
+```
+
+Validar containers:
+
+```powershell
+docker ps
+```
+
+RabbitMQ Management:
+
+```text
+http://localhost:15672
+usuario: guest
+senha: guest
+```
+
+Se precisar recriar o ambiente do zero:
+
+```powershell
+docker compose -f docker-compose.dev.yml down -v
+docker compose -f docker-compose.dev.yml up -d
+```
+
+## Banco de dados
+
+Criar/aplicar o banco a partir das migrations:
+
+```powershell
+dotnet ef database update --project src\UsersAPI\UsersAPI.csproj --startup-project src\UsersAPI\UsersAPI.csproj
+```
+
+Validar no SQL Server Management Studio:
+
+```text
+Server: localhost,1433
+Authentication: SQL Server Authentication
+Login: sa
+Password: Fcg@123456
+Trust server certificate: marcado
+```
+
+Queries uteis:
+
+```sql
+SELECT name FROM sys.databases ORDER BY name;
+
+SELECT * FROM FiapCloudGamesUsers.dbo.__EFMigrationsHistory;
+
+SELECT TABLE_SCHEMA, TABLE_NAME
+FROM FiapCloudGamesUsers.INFORMATION_SCHEMA.TABLES
+ORDER BY TABLE_SCHEMA, TABLE_NAME;
+
+SELECT Id, Name, Email, Cpf, BirthDate, Role, IsActive, CreatedAt
+FROM FiapCloudGamesUsers.dbo.Users;
+```
+
+## Executar a API localmente
 
 ```powershell
 dotnet run --project src\UsersAPI\UsersAPI.csproj
@@ -50,20 +149,117 @@ Swagger em ambiente de desenvolvimento:
 
 ```text
 https://localhost:<porta>/swagger
+http://localhost:<porta>/swagger
 ```
 
-## Docker
+As portas exatas aparecem no terminal ou em `src/UsersAPI/Properties/launchSettings.json`.
+
+## Endpoints principais
+
+- `POST /api/users` - cadastra usuario e publica `UserCreatedEvent`.
+- `GET /api/users` - lista usuarios, exige role `Administrator`.
+- `PUT /api/users/me` - atualiza perfil do usuario autenticado.
+- `PATCH /api/users/me/password` - altera senha do usuario autenticado.
+- `PUT /api/users/{userId}` - atualizacao administrativa, exige role `Administrator`.
+- `PATCH /api/users/{userId}/deactivate` - desativa usuario, exige role `Administrator`.
+- `POST /api/auth/login` - autentica e retorna JWT.
+- `POST /api/auth/forgot-password` - redefine senha com dados de recuperacao.
+- `GET /health` - health check simples.
+
+## Exemplo de cadastro
+
+```powershell
+curl -X POST "http://localhost:<porta>/api/users" `
+  -H "Content-Type: application/json" `
+  -d '{
+    "name": "Maicon Guedes",
+    "email": "maicon@email.com",
+    "cpf": "529.982.247-25",
+    "birthDate": "1993-06-17",
+    "password": "Senha@123",
+    "confirmPassword": "Senha@123"
+  }'
+```
+
+## Exemplo de login
+
+```powershell
+curl -X POST "http://localhost:<porta>/api/auth/login" `
+  -H "Content-Type: application/json" `
+  -d '{
+    "email": "maicon@email.com",
+    "password": "Senha@123"
+  }'
+```
+
+## Evento publicado
+
+### `UserCreatedEvent`
+
+Publicado pela UsersAPI apos o cadastro de usuario.
+
+```json
+{
+  "userId": "guid",
+  "name": "string",
+  "email": "string",
+  "createdAt": "datetime"
+}
+```
+
+A UsersAPI usa `Publish` do MassTransit. Isso publica o evento na exchange do tipo `UserCreatedEvent` no RabbitMQ.
+
+Importante: enquanto nao existir um consumidor, como a futura NotificationsAPI, nao havera fila recebendo a mensagem. O evento pode aparecer como exchange/topologia, mas nao como mensagem parada em fila.
+
+## Testes
+
+Executar a suite:
+
+```powershell
+dotnet test UsersAPI.slnx -m:1
+```
+
+Estado atual:
+
+```text
+153 testes passando
+```
+
+Foram migrados testes do monolito relacionados a:
+
+- dominio de usuarios;
+- value objects de usuario;
+- casos de uso de usuarios;
+- controllers de usuario/autenticacao;
+- JWT e hash de senha;
+- middlewares e configuracoes da API.
+
+Testes de jogos e biblioteca ficaram fora deste repositorio porque pertencem aos futuros microsservicos CatalogAPI e fluxo de compra.
+
+## Docker da API
+
+Build da imagem da UsersAPI:
 
 ```powershell
 docker build -t fiap-cloud-games-users-api:latest .
 ```
 
+Nesta fase de desenvolvimento, o `docker-compose.dev.yml` sobe apenas SQL Server e RabbitMQ. A API pode ser rodada pelo Visual Studio ou `dotnet run` para facilitar debug.
+
 ## Kubernetes
 
-Os manifests serao adicionados em `k8s/` nas proximas etapas.
+Os manifests serao adicionados em `k8s/` nas proximas etapas e deverao conter:
+
+- `Deployment`
+- `Service`
+- `ConfigMap`
+- `Secret`
+
+Comandos esperados depois da criacao dos manifests:
 
 ```powershell
 kubectl apply -f .\k8s
 kubectl get pods
+kubectl get services
 kubectl logs deployment/users-api
 ```
