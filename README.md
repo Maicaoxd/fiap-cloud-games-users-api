@@ -54,7 +54,8 @@ k8s/               Manifestos Kubernetes do servico.
 | `Jwt__Audience` | Audiencia do token JWT. |
 | `Jwt__Secret` | Chave usada para assinar o JWT. |
 | `Jwt__ExpirationMinutes` | Tempo de expiracao do token. |
-| `RabbitMq__Host` | Host do RabbitMQ. |
+| RabbitMq__Host | Host do RabbitMQ. |
+| RabbitMq__Port | Porta TCP usada pelo MassTransit. |
 | `RabbitMq__VirtualHost` | Virtual host do RabbitMQ. |
 | `RabbitMq__Username` | Usuario do RabbitMQ. |
 | `RabbitMq__Password` | Senha do RabbitMQ. |
@@ -66,7 +67,7 @@ SQL Server: localhost,1433
 Database: FiapCloudGamesUsers
 User: sa
 Password: Fcg@123456
-RabbitMQ: localhost
+RabbitMQ: localhost:5672
 RabbitMQ Management: http://localhost:15672
 ```
 
@@ -164,7 +165,9 @@ As portas exatas aparecem no terminal ou em `src/UsersAPI/Properties/launchSetti
 - `PATCH /api/users/{userId}/deactivate` - desativa usuario, exige role `Administrator`.
 - `POST /api/auth/login` - autentica e retorna JWT.
 - `POST /api/auth/forgot-password` - redefine senha com dados de recuperacao.
-- `GET /health` - health check simples.
+- `GET /health/live` - health check de liveness, valida se o processo da API esta de pe.
+- `GET /health` - health check de readiness, valida se a API consegue conectar no SQL Server e no RabbitMQ.
+- `GET /health/ready` - equivalente ao readiness check, util para Kubernetes.
 
 ## Exemplo de cadastro
 
@@ -263,3 +266,8 @@ kubectl get pods
 kubectl get services
 kubectl logs deployment/users-api
 ```
+
+
+
+
+

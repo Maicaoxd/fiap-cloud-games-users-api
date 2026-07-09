@@ -1,7 +1,7 @@
-﻿using UsersAPI.Api.Contracts.Events;
+﻿using FiapCloudGames.Contracts.Events;
+using MassTransit;
 using UsersAPI.Application.Abstractions.Messaging;
 using UsersAPI.Domain.Users;
-using MassTransit;
 
 namespace UsersAPI.Infrastructure.Messaging
 {

@@ -1,4 +1,4 @@
-﻿namespace UsersAPI.Api.Contracts.Events
+﻿namespace FiapCloudGames.Contracts.Events
 {
     public sealed record UserCreatedEvent(
         Guid UserId,
