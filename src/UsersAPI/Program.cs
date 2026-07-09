@@ -2,6 +2,7 @@
 using UsersAPI.Application;
 using UsersAPI.Health;
 using UsersAPI.Infrastructure;
+using UsersAPI.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +11,8 @@ builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
+
+await app.ApplyDatabaseMigrationsAsync();
 
 app.UseApiPresentation();
 
@@ -69,3 +72,4 @@ static async Task<IResult> CheckReadinessAsync(
         ? Results.Ok(response)
         : Results.Json(response, statusCode: StatusCodes.Status503ServiceUnavailable);
 }
+
