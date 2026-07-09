@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/k8s/" />
+  <Folder Name="/src/">
+    <Project Path="src/UsersAPI/UsersAPI.csproj" Id="0efc420a-43b1-4289-98d4-7ef1f8f56223" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/UsersAPI.Tests/UsersAPI.Tests.csproj" Id="e4ba8011-39c4-48e3-b183-db7dbe6b1f7a" />
+  </Folder>
+</Solution>
