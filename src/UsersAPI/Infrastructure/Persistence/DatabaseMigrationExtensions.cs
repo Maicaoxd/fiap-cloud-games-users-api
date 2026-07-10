@@ -6,11 +6,6 @@ namespace UsersAPI.Infrastructure.Persistence
     {
         public static async Task ApplyDatabaseMigrationsAsync(this WebApplication app)
         {
-            var shouldApplyMigrations = app.Configuration.GetValue<bool>("Database:ApplyMigrationsOnStartup");
-
-            if (!shouldApplyMigrations)
-                return;
-
             using var scope = app.Services.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<UsersDbContext>();
             var logger = scope.ServiceProvider

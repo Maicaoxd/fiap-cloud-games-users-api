@@ -12,7 +12,11 @@ builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 
-await app.ApplyDatabaseMigrationsAsync();
+if (args.Contains("--migrate", StringComparer.OrdinalIgnoreCase))
+{
+    await app.ApplyDatabaseMigrationsAsync();
+    return;
+}
 
 app.UseApiPresentation();
 
@@ -72,4 +76,3 @@ static async Task<IResult> CheckReadinessAsync(
         ? Results.Ok(response)
         : Results.Json(response, statusCode: StatusCodes.Status503ServiceUnavailable);
 }
-
