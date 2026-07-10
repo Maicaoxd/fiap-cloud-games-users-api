@@ -257,27 +257,28 @@ Testes de jogos e biblioteca ficaram fora deste repositorio porque pertencem aos
 Build da imagem da UsersAPI:
 
 ```powershell
-docker build -t fiap-cloud-games-users-api:latest .
+docker build -t maicaoxd/fiap-cloud-games-users-api:0.1.2 .
 ```
 
-Nesta fase de desenvolvimento, o `docker-compose.dev.yml` sobe apenas SQL Server e RabbitMQ. A API pode ser rodada pelo Visual Studio ou `dotnet run` para facilitar debug.
+Para executar o ambiente completo com UsersAPI, CatalogAPI, PaymentsAPI, NotificationsAPI, RabbitMQ e bancos SQL Server, use o `docker-compose.yml` do repositorio `fiap-cloud-games-orchestration`.
 
 ## Kubernetes
 
-Os manifests serao adicionados em `k8s/` nas proximas etapas e deverao conter:
+Os manifests ficam em `k8s/` e contem:
 
 - `Deployment`
 - `Service`
 - `ConfigMap`
 - `Secret`
+- `Job` de migration
 
-Comandos esperados depois da criacao dos manifests:
+Aplicar manifests deste servico:
 
 ```powershell
-kubectl apply -f .\k8s
-kubectl get pods
-kubectl get services
-kubectl logs deployment/users-api
+kubectl apply -k .\k8s
+kubectl get pods -n fiap-cloud-games
+kubectl get services -n fiap-cloud-games
+kubectl logs deployment/users-api -n fiap-cloud-games
 ```
 
 
