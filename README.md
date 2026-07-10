@@ -140,6 +140,19 @@ SELECT Id, Name, Email, Cpf, BirthDate, Role, IsActive, CreatedAt
 FROM FiapCloudGamesUsers.dbo.Users;
 ```
 
+### Seed do administrador
+
+As migrations da UsersAPI criam um usuario administrador inicial para permitir testar endpoints protegidos por role `Administrator`.
+
+Dados do administrador:
+
+- e-mail: `admin@email.com`
+- CPF: `52998224725`
+- data de nascimento: `1990-01-01`
+- role: `Administrator`
+
+Caso precise definir uma senha localmente, use o endpoint `POST /api/auth/forgot-password` com os dados de recuperacao acima.
+
 ## Executar a API localmente
 
 ```powershell
@@ -177,7 +190,7 @@ curl -X POST "http://localhost:<porta>/api/users" `
   -d '{
     "name": "Maicon Guedes",
     "email": "maicon@email.com",
-    "cpf": "529.982.247-25",
+    "cpf": "111.444.777-35",
     "birthDate": "1993-06-17",
     "password": "Senha@123",
     "confirmPassword": "Senha@123"
@@ -225,7 +238,7 @@ dotnet test UsersAPI.slnx -m:1
 Estado atual:
 
 ```text
-153 testes passando
+155 testes passando
 ```
 
 Foram migrados testes do monolito relacionados a:
