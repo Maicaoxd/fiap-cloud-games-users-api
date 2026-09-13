@@ -233,7 +233,7 @@ Publicado pela UsersAPI apos o cadastro de usuario.
 
 A UsersAPI usa `Publish` do MassTransit. Isso publica o evento na exchange do tipo `UserCreatedEvent` no RabbitMQ.
 
-O evento é publicado em uma exchange RabbitMQ. No ambiente integrado, a fila notifications-user-created-event entrega as mensagens à Function no Docker ou à NotificationsAPI no Kubernetes. Sem uma fila vinculada à exchange, o evento não fica armazenado para consumo.
+O evento é publicado em uma exchange RabbitMQ. No ambiente integrado Docker e Kubernetes, a fila notifications-user-created-event entrega as mensagens à Notifications Function. NotificationsAPI é uma alternativa legada e não deve consumir a mesma fila simultaneamente. Sem uma fila vinculada à exchange, o evento não fica armazenado para consumo.
 
 ## Testes
 
