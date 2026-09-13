@@ -14,7 +14,7 @@ public sealed class DeactivateUserUseCaseTests
     [Fact]
     public async Task Deve_Desativar_Usuario_Quando_Ele_Estiver_Ativo()
     {
-        // Arrange
+        // Preparação
         var deactivatedBy = Guid.NewGuid();
         var user = CreateUser();
         var userRepository = Substitute.For<IUserRepository>();
@@ -26,10 +26,10 @@ public sealed class DeactivateUserUseCaseTests
         var useCase = new DeactivateUserUseCase(userRepository);
         var command = new DeactivateUserCommand(user.Id, deactivatedBy);
 
-        // Act
+        // Execução
         await useCase.ExecuteAsync(command);
 
-        // Assert
+        // Verificação
         user.IsActive.ShouldBeFalse();
         user.UpdatedBy.ShouldBe(deactivatedBy);
         user.UpdatedAt.ShouldNotBeNull();
@@ -39,7 +39,7 @@ public sealed class DeactivateUserUseCaseTests
     [Fact]
     public async Task Deve_Lancar_Excecao_Quando_Usuario_Nao_Existir()
     {
-        // Arrange
+        // Preparação
         var userId = Guid.NewGuid();
         var userRepository = Substitute.For<IUserRepository>();
 
@@ -50,10 +50,10 @@ public sealed class DeactivateUserUseCaseTests
         var useCase = new DeactivateUserUseCase(userRepository);
         var command = new DeactivateUserCommand(userId, Guid.NewGuid());
 
-        // Act
+        // Execução
         var exception = await Should.ThrowAsync<UserNotFoundException>(() => useCase.ExecuteAsync(command));
 
-        // Assert
+        // Verificação
         exception.Message.ShouldBe(ApplicationMessages.User.NotFound);
         await userRepository.DidNotReceive().UpdateAsync(Arg.Any<User>(), Arg.Any<CancellationToken>());
     }
@@ -61,7 +61,7 @@ public sealed class DeactivateUserUseCaseTests
     [Fact]
     public async Task Deve_Nao_Persistir_Quando_Usuario_Ja_Estiver_Inativo()
     {
-        // Arrange
+        // Preparação
         var user = CreateUser();
         user.Deactivate(Guid.NewGuid());
 
@@ -76,10 +76,10 @@ public sealed class DeactivateUserUseCaseTests
         var useCase = new DeactivateUserUseCase(userRepository);
         var command = new DeactivateUserCommand(user.Id, Guid.NewGuid());
 
-        // Act
+        // Execução
         await useCase.ExecuteAsync(command);
 
-        // Assert
+        // Verificação
         user.IsActive.ShouldBeFalse();
         user.UpdatedAt.ShouldBe(updatedAt);
         user.UpdatedBy.ShouldBe(updatedBy);
@@ -95,4 +95,3 @@ public sealed class DeactivateUserUseCaseTests
         return User.Create("Maicon Guedes", email, cpf, new DateOnly(1993, 6, 17), passwordHash);
     }
 }
-

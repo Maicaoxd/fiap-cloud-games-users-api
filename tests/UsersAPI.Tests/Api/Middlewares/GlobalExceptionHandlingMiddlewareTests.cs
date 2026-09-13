@@ -18,15 +18,15 @@ public sealed class GlobalExceptionHandlingMiddlewareTests
     [Fact]
     public async Task InvokeAsync_QuandoOcorrerArgumentException_DeveRetornarBadRequest()
     {
-        // Arrange
+        // Preparação
         var httpContext = CreateHttpContext();
         var middleware = CreateMiddleware(_ =>
             throw new ArgumentException(DomainMessages.Email.InvalidFormat));
 
-        // Act
+        // Execução
         await middleware.InvokeAsync(httpContext);
 
-        // Assert
+        // Verificação
         var problemDetails = await ReadProblemDetailsAsync(httpContext);
 
         httpContext.Response.StatusCode.ShouldBe(StatusCodes.Status400BadRequest);
@@ -39,15 +39,15 @@ public sealed class GlobalExceptionHandlingMiddlewareTests
     [Fact]
     public async Task InvokeAsync_QuandoOcorrerBadHttpRequestException_DeveRetornarBadRequest()
     {
-        // Arrange
+        // Preparação
         var httpContext = CreateHttpContext();
         var middleware = CreateMiddleware(_ =>
             throw new BadHttpRequestException("Required request body is missing."));
 
-        // Act
+        // Execução
         await middleware.InvokeAsync(httpContext);
 
-        // Assert
+        // Verificação
         var problemDetails = await ReadProblemDetailsAsync(httpContext);
 
         httpContext.Response.StatusCode.ShouldBe(StatusCodes.Status400BadRequest);
@@ -59,15 +59,15 @@ public sealed class GlobalExceptionHandlingMiddlewareTests
     [Fact]
     public async Task InvokeAsync_QuandoOcorrerEmailAlreadyRegisteredException_DeveRetornarConflict()
     {
-        // Arrange
+        // Preparação
         var httpContext = CreateHttpContext();
         var middleware = CreateMiddleware(_ =>
             throw new EmailAlreadyRegisteredException());
 
-        // Act
+        // Execução
         await middleware.InvokeAsync(httpContext);
 
-        // Assert
+        // Verificação
         var problemDetails = await ReadProblemDetailsAsync(httpContext);
 
         httpContext.Response.StatusCode.ShouldBe(StatusCodes.Status409Conflict);
@@ -79,15 +79,15 @@ public sealed class GlobalExceptionHandlingMiddlewareTests
     [Fact]
     public async Task InvokeAsync_QuandoOcorrerCpfAlreadyRegisteredException_DeveRetornarConflict()
     {
-        // Arrange
+        // Preparação
         var httpContext = CreateHttpContext();
         var middleware = CreateMiddleware(_ =>
             throw new CpfAlreadyRegisteredException());
 
-        // Act
+        // Execução
         await middleware.InvokeAsync(httpContext);
 
-        // Assert
+        // Verificação
         var problemDetails = await ReadProblemDetailsAsync(httpContext);
 
         httpContext.Response.StatusCode.ShouldBe(StatusCodes.Status409Conflict);
@@ -99,15 +99,15 @@ public sealed class GlobalExceptionHandlingMiddlewareTests
     [Fact]
     public async Task InvokeAsync_QuandoOcorrerUserNotFoundException_DeveRetornarNotFound()
     {
-        // Arrange
+        // Preparação
         var httpContext = CreateHttpContext();
         var middleware = CreateMiddleware(_ =>
             throw new UserNotFoundException());
 
-        // Act
+        // Execução
         await middleware.InvokeAsync(httpContext);
 
-        // Assert
+        // Verificação
         var problemDetails = await ReadProblemDetailsAsync(httpContext);
 
         httpContext.Response.StatusCode.ShouldBe(StatusCodes.Status404NotFound);
@@ -119,15 +119,15 @@ public sealed class GlobalExceptionHandlingMiddlewareTests
     [Fact]
     public async Task InvokeAsync_QuandoOcorrerInvalidPasswordRecoveryDataException_DeveRetornarBadRequest()
     {
-        // Arrange
+        // Preparação
         var httpContext = CreateHttpContext();
         var middleware = CreateMiddleware(_ =>
             throw new InvalidPasswordRecoveryDataException());
 
-        // Act
+        // Execução
         await middleware.InvokeAsync(httpContext);
 
-        // Assert
+        // Verificação
         var problemDetails = await ReadProblemDetailsAsync(httpContext);
 
         httpContext.Response.StatusCode.ShouldBe(StatusCodes.Status400BadRequest);
@@ -139,15 +139,15 @@ public sealed class GlobalExceptionHandlingMiddlewareTests
     [Fact]
     public async Task InvokeAsync_QuandoOcorrerInvalidCredentialsException_DeveRetornarUnauthorized()
     {
-        // Arrange
+        // Preparação
         var httpContext = CreateHttpContext();
         var middleware = CreateMiddleware(_ =>
             throw new InvalidCredentialsException());
 
-        // Act
+        // Execução
         await middleware.InvokeAsync(httpContext);
 
-        // Assert
+        // Verificação
         var problemDetails = await ReadProblemDetailsAsync(httpContext);
 
         httpContext.Response.StatusCode.ShouldBe(StatusCodes.Status401Unauthorized);
@@ -159,15 +159,15 @@ public sealed class GlobalExceptionHandlingMiddlewareTests
     [Fact]
     public async Task InvokeAsync_QuandoOcorrerInactiveUserException_DeveRetornarForbidden()
     {
-        // Arrange
+        // Preparação
         var httpContext = CreateHttpContext();
         var middleware = CreateMiddleware(_ =>
             throw new InactiveUserException());
 
-        // Act
+        // Execução
         await middleware.InvokeAsync(httpContext);
 
-        // Assert
+        // Verificação
         var problemDetails = await ReadProblemDetailsAsync(httpContext);
 
         httpContext.Response.StatusCode.ShouldBe(StatusCodes.Status403Forbidden);
@@ -179,17 +179,17 @@ public sealed class GlobalExceptionHandlingMiddlewareTests
     [Fact]
     public async Task InvokeAsync_QuandoOcorrerDbUpdateExceptionDeUnicidade_DeveRetornarConflict()
     {
-        // Arrange
+        // Preparação
         var httpContext = CreateHttpContext();
         var middleware = CreateMiddleware(_ =>
             throw new DbUpdateException(
                 "Falha ao persistir.",
                 new Exception("Violation of UNIQUE KEY constraint 'IX_Users_Email'.")));
 
-        // Act
+        // Execução
         await middleware.InvokeAsync(httpContext);
 
-        // Assert
+        // Verificação
         var problemDetails = await ReadProblemDetailsAsync(httpContext);
 
         httpContext.Response.StatusCode.ShouldBe(StatusCodes.Status409Conflict);
@@ -231,5 +231,4 @@ public sealed class GlobalExceptionHandlingMiddlewareTests
         return problemDetails!;
     }
 }
-
 

@@ -9,13 +9,13 @@ public sealed class PasswordTests
     [Fact]
     public void Deve_Criar_Senha_Quando_Valor_For_Forte()
     {
-        // Arrange
+        // Preparação
         const string valor = "Senha@123";
 
-        // Act
+        // Execução
         var senha = Password.Create(valor);
 
-        // Assert
+        // Verificação
         senha.ShouldNotBeNull();
     }
 
@@ -26,26 +26,26 @@ public sealed class PasswordTests
     [InlineData("   ")]
     public void Deve_Lancar_Excecao_Quando_Senha_For_Obrigatoria_E_Nao_For_Informada(string? valor)
     {
-        // Arrange
+        // Preparação
         Action acao = () => Password.Create(valor!);
 
-        // Act
+        // Execução
         var excecao = Should.Throw<ArgumentException>(acao);
 
-        // Assert
+        // Verificação
         excecao.Message.ShouldBe(DomainMessages.Password.Required);
     }
 
     [Fact]
     public void Deve_Lancar_Excecao_Quando_Senha_Tiver_Menos_De_Oito_Caracteres()
     {
-        // Arrange
+        // Preparação
         const string valor = "Senha@1";
 
-        // Act
+        // Execução
         Action acao = () => Password.Create(valor);
 
-        // Assert
+        // Verificação
         var excecao = Should.Throw<ArgumentException>(acao);
         excecao.Message.ShouldBe(DomainMessages.Password.MinimumLength);
     }
@@ -53,13 +53,13 @@ public sealed class PasswordTests
     [Fact]
     public void Deve_Lancar_Excecao_Quando_Senha_Nao_Tiver_Letras()
     {
-        // Arrange
+        // Preparação
         const string valor = "12345678@";
 
-        // Act
+        // Execução
         Action acao = () => Password.Create(valor);
 
-        // Assert
+        // Verificação
         var excecao = Should.Throw<ArgumentException>(acao);
         excecao.Message.ShouldBe(DomainMessages.Password.LetterRequired);
     }
@@ -67,13 +67,13 @@ public sealed class PasswordTests
     [Fact]
     public void Deve_Lancar_Excecao_Quando_Senha_Nao_Tiver_Numeros()
     {
-        // Arrange
+        // Preparação
         const string valor = "Senha@@@";
 
-        // Act
+        // Execução
         Action acao = () => Password.Create(valor);
 
-        // Assert
+        // Verificação
         var excecao = Should.Throw<ArgumentException>(acao);
         excecao.Message.ShouldBe(DomainMessages.Password.NumberRequired);
     }
@@ -81,13 +81,13 @@ public sealed class PasswordTests
     [Fact]
     public void Deve_Lancar_Excecao_Quando_Senha_Nao_Tiver_Caractere_Especial()
     {
-        // Arrange
+        // Preparação
         const string valor = "Senha123";
 
-        // Act
+        // Execução
         Action acao = () => Password.Create(valor);
 
-        // Assert
+        // Verificação
         var excecao = Should.Throw<ArgumentException>(acao);
         excecao.Message.ShouldBe(DomainMessages.Password.SpecialCharacterRequired);
     }
@@ -95,13 +95,13 @@ public sealed class PasswordTests
     [Fact]
     public void Deve_Lancar_Excecao_Quando_Senha_Tiver_Espaco_Em_Branco()
     {
-        // Arrange
+        // Preparação
         const string valor = "Senha 123";
 
-        // Act
+        // Execução
         Action acao = () => Password.Create(valor);
 
-        // Assert
+        // Verificação
         var excecao = Should.Throw<ArgumentException>(acao);
         excecao.Message.ShouldBe(DomainMessages.Password.WhiteSpaceNotAllowed);
     }
@@ -109,29 +109,28 @@ public sealed class PasswordTests
     [Fact]
     public void Deve_Considerar_Senhas_Iguais_Quando_Valores_Forem_Iguais()
     {
-        // Arrange
+        // Preparação
         var primeiraSenha = Password.Create("Senha@123");
         var segundaSenha = Password.Create("Senha@123");
 
-        // Act
+        // Execução
         var saoIguais = primeiraSenha.Equals(segundaSenha);
 
-        // Assert
+        // Verificação
         saoIguais.ShouldBeTrue();
     }
 
     [Fact]
     public void Deve_Considerar_Senhas_Diferentes_Quando_Valores_Forem_Diferentes()
     {
-        // Arrange
+        // Preparação
         var primeiraSenha = Password.Create("Senha@123");
         var segundaSenha = Password.Create("Senha@456");
 
-        // Act
+        // Execução
         var saoIguais = primeiraSenha.Equals(segundaSenha);
 
-        // Assert
+        // Verificação
         saoIguais.ShouldBeFalse();
     }
 }
-

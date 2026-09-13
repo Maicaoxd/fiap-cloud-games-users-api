@@ -19,14 +19,14 @@ public sealed class ServiceCollectionExtensionsTests
     [Fact]
     public async Task AddApiPresentation_DeveConfigurarJwtBearerComoEsquemaPadrao()
     {
-        // Arrange
+        // Preparação
         var services = new ServiceCollection();
         var configuration = CreateConfiguration();
 
-        // Act
+        // Execução
         services.AddApiPresentation(configuration);
 
-        // Assert
+        // Verificação
         await using var serviceProvider = services.BuildServiceProvider();
         var schemeProvider = serviceProvider.GetRequiredService<IAuthenticationSchemeProvider>();
         var authenticateScheme = await schemeProvider.GetDefaultAuthenticateSchemeAsync();
@@ -41,14 +41,14 @@ public sealed class ServiceCollectionExtensionsTests
     [Fact]
     public void AddApiPresentation_DeveConfigurarValidacaoJwtParaRoles()
     {
-        // Arrange
+        // Preparação
         var services = new ServiceCollection();
         var configuration = CreateConfiguration();
 
-        // Act
+        // Execução
         services.AddApiPresentation(configuration);
 
-        // Assert
+        // Verificação
         using var serviceProvider = services.BuildServiceProvider();
         var jwtBearerOptions = serviceProvider
             .GetRequiredService<IOptionsMonitor<JwtBearerOptions>>()
@@ -67,7 +67,7 @@ public sealed class ServiceCollectionExtensionsTests
     [Fact]
     public async Task AddApiPresentation_QuandoJwtChallenge_DeveRetornarProblemDetailsUnauthorized()
     {
-        // Arrange
+        // Preparação
         var services = new ServiceCollection();
         var configuration = CreateConfiguration();
 
@@ -86,10 +86,10 @@ public sealed class ServiceCollectionExtensionsTests
             jwtBearerOptions,
             new AuthenticationProperties());
 
-        // Act
+        // Execução
         await jwtBearerOptions.Events.OnChallenge(context);
 
-        // Assert
+        // Verificação
         var problemDetails = await ReadProblemDetailsAsync(httpContext);
 
         httpContext.Response.StatusCode.ShouldBe(StatusCodes.Status401Unauthorized);
@@ -103,7 +103,7 @@ public sealed class ServiceCollectionExtensionsTests
     [Fact]
     public async Task AddApiPresentation_QuandoJwtForbidden_DeveRetornarProblemDetailsForbidden()
     {
-        // Arrange
+        // Preparação
         var services = new ServiceCollection();
         var configuration = CreateConfiguration();
 
@@ -121,10 +121,10 @@ public sealed class ServiceCollectionExtensionsTests
             authenticationScheme,
             jwtBearerOptions);
 
-        // Act
+        // Execução
         await jwtBearerOptions.Events.OnForbidden(context);
 
-        // Assert
+        // Verificação
         var problemDetails = await ReadProblemDetailsAsync(httpContext);
 
         httpContext.Response.StatusCode.ShouldBe(StatusCodes.Status403Forbidden);
@@ -182,4 +182,3 @@ public sealed class ServiceCollectionExtensionsTests
         return problemDetails!;
     }
 }
-

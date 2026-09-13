@@ -10,7 +10,7 @@ public sealed class StructuredRequestLoggingMiddlewareTests
     [Fact]
     public async Task InvokeAsync_QuandoRequestForProcessado_DeveRegistrarLogEstruturado()
     {
-        // Arrange
+        // Preparação
         var httpContext = CreateHttpContext();
         var logger = new TestLogger<StructuredRequestLoggingMiddleware>();
         var middleware = new StructuredRequestLoggingMiddleware(
@@ -22,10 +22,10 @@ public sealed class StructuredRequestLoggingMiddlewareTests
             },
             logger);
 
-        // Act
+        // Execução
         await middleware.InvokeAsync(httpContext);
 
-        // Assert
+        // Verificação
         var logEntry = logger.LogEntries.Single();
 
         logEntry.LogLevel.ShouldBe(LogLevel.Information);
@@ -39,7 +39,7 @@ public sealed class StructuredRequestLoggingMiddlewareTests
     [Fact]
     public async Task InvokeAsync_QuandoResponseForErroServidor_DeveRegistrarWarning()
     {
-        // Arrange
+        // Preparação
         var httpContext = CreateHttpContext();
         var logger = new TestLogger<StructuredRequestLoggingMiddleware>();
         var middleware = new StructuredRequestLoggingMiddleware(
@@ -51,10 +51,10 @@ public sealed class StructuredRequestLoggingMiddlewareTests
             },
             logger);
 
-        // Act
+        // Execução
         await middleware.InvokeAsync(httpContext);
 
-        // Assert
+        // Verificação
         var logEntry = logger.LogEntries.Single();
 
         logEntry.LogLevel.ShouldBe(LogLevel.Warning);

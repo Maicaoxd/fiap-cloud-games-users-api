@@ -18,16 +18,16 @@ namespace UsersAPI.Infrastructure.Persistence
             {
                 try
                 {
-                    logger.LogInformation("Applying UsersAPI database migrations. Attempt {Attempt}/{MaxAttempts}.", attempt, maxAttempts);
+                    logger.LogInformation("Aplicando migrations do banco da UsersAPI. Tentativa {Attempt}/{MaxAttempts}.", attempt, maxAttempts);
                     await dbContext.Database.MigrateAsync();
-                    logger.LogInformation("UsersAPI database migrations applied successfully.");
+                    logger.LogInformation("Migrations do banco da UsersAPI aplicadas com sucesso.");
                     return;
                 }
                 catch (Exception exception) when (attempt < maxAttempts)
                 {
                     logger.LogWarning(
                         exception,
-                        "UsersAPI database migration failed. Retrying in 5 seconds. Attempt {Attempt}/{MaxAttempts}.",
+                        "Falha ao aplicar migrations do banco da UsersAPI. Nova tentativa em 5 segundos. Tentativa {Attempt}/{MaxAttempts}.",
                         attempt,
                         maxAttempts);
 

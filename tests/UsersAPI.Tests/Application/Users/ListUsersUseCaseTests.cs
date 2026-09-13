@@ -12,7 +12,7 @@ public sealed class ListUsersUseCaseTests
     [Fact]
     public async Task Deve_Listar_Usuarios()
     {
-        // Arrange
+        // Preparação
         var firstUser = CreateUser("Ana Guedes", "ana@email.com", "529.982.247-25");
         var secondUser = CreateUser("Maicon Guedes", "maicon@email.com", "168.995.350-09");
         secondUser.Deactivate(Guid.NewGuid());
@@ -24,10 +24,10 @@ public sealed class ListUsersUseCaseTests
 
         var useCase = new ListUsersUseCase(userRepository);
 
-        // Act
+        // Execução
         var result = await useCase.ExecuteAsync();
 
-        // Assert
+        // Verificação
         result.Count.ShouldBe(2);
         result.ShouldContain(user =>
             user.UserId == firstUser.Id &&
@@ -58,4 +58,3 @@ public sealed class ListUsersUseCaseTests
             PasswordHash.Create("$2a$11$hashfakeparatestes"));
     }
 }
-

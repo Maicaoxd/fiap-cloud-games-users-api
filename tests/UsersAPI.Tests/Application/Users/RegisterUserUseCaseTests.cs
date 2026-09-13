@@ -16,7 +16,7 @@ public sealed class RegisterUserUseCaseTests
     [Fact]
     public async Task Deve_Cadastrar_Usuario_Quando_Dados_Forem_Validos()
     {
-        // Arrange
+        // Preparação
         var birthDate = new DateOnly(1993, 6, 17);
         var passwordHash = PasswordHash.Create("$2a$11$hashfakeparatestes");
         var userRepository = Substitute.For<IUserRepository>();
@@ -48,10 +48,10 @@ public sealed class RegisterUserUseCaseTests
             "Senha@123",
             "Senha@123");
 
-        // Act
+        // Execução
         var result = await useCase.ExecuteAsync(command);
 
-        // Assert
+        // Verificação
         result.UserId.ShouldNotBe(Guid.Empty);
         addedUser.ShouldNotBeNull();
         addedUser!.Id.ShouldBe(result.UserId);
@@ -68,7 +68,7 @@ public sealed class RegisterUserUseCaseTests
     [Fact]
     public async Task Deve_Lancar_Excecao_Quando_Senha_E_Confirmacao_Nao_Conferirem()
     {
-        // Arrange
+        // Preparação
         var userRepository = Substitute.For<IUserRepository>();
         var passwordHasher = Substitute.For<IPasswordHasher>();
         var useCase = new RegisterUserUseCase(userRepository, passwordHasher, Substitute.For<IUserCreatedEventPublisher>());
@@ -80,10 +80,10 @@ public sealed class RegisterUserUseCaseTests
             "Senha@123",
             "Outra@123");
 
-        // Act
+        // Execução
         var excecao = await Should.ThrowAsync<ArgumentException>(() => useCase.ExecuteAsync(command));
 
-        // Assert
+        // Verificação
         excecao.Message.ShouldBe(ApplicationMessages.User.PasswordConfirmationDoesNotMatch);
         passwordHasher.DidNotReceive().Hash(Arg.Any<Password>());
         await userRepository.DidNotReceive().AddAsync(Arg.Any<User>(), Arg.Any<CancellationToken>());
@@ -92,7 +92,7 @@ public sealed class RegisterUserUseCaseTests
     [Fact]
     public async Task Deve_Lancar_Excecao_Quando_Email_Ja_Estiver_Cadastrado()
     {
-        // Arrange
+        // Preparação
         var userRepository = Substitute.For<IUserRepository>();
         var passwordHasher = Substitute.For<IPasswordHasher>();
 
@@ -109,10 +109,10 @@ public sealed class RegisterUserUseCaseTests
             "Senha@123",
             "Senha@123");
 
-        // Act
+        // Execução
         var excecao = await Should.ThrowAsync<EmailAlreadyRegisteredException>(() => useCase.ExecuteAsync(command));
 
-        // Assert
+        // Verificação
         excecao.Message.ShouldBe(ApplicationMessages.User.EmailAlreadyRegistered);
         passwordHasher.DidNotReceive().Hash(Arg.Any<Password>());
         await userRepository.DidNotReceive().AddAsync(Arg.Any<User>(), Arg.Any<CancellationToken>());
@@ -121,7 +121,7 @@ public sealed class RegisterUserUseCaseTests
     [Fact]
     public async Task Deve_Lancar_Excecao_Quando_Cpf_Ja_Estiver_Cadastrado()
     {
-        // Arrange
+        // Preparação
         var userRepository = Substitute.For<IUserRepository>();
         var passwordHasher = Substitute.For<IPasswordHasher>();
 
@@ -141,14 +141,13 @@ public sealed class RegisterUserUseCaseTests
             "Senha@123",
             "Senha@123");
 
-        // Act
+        // Execução
         var excecao = await Should.ThrowAsync<CpfAlreadyRegisteredException>(() => useCase.ExecuteAsync(command));
 
-        // Assert
+        // Verificação
         excecao.Message.ShouldBe(ApplicationMessages.User.CpfAlreadyRegistered);
         passwordHasher.DidNotReceive().Hash(Arg.Any<Password>());
         await userRepository.DidNotReceive().AddAsync(Arg.Any<User>(), Arg.Any<CancellationToken>());
     }
 }
-
 

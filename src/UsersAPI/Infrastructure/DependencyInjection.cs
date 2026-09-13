@@ -28,7 +28,7 @@ namespace UsersAPI.Infrastructure
         private static void AddPersistence(IServiceCollection services, IConfiguration configuration)
         {
             var connectionString = configuration.GetConnectionString("DefaultConnection")
-                ?? throw new InvalidOperationException("DefaultConnection connection string was not configured.");
+                ?? throw new InvalidOperationException("A cadeia de conexão DefaultConnection não foi configurada.");
 
             services.AddDbContext<UsersDbContext>(options =>
                 options.UseSqlServer(connectionString));
@@ -49,11 +49,11 @@ namespace UsersAPI.Infrastructure
             services
                 .AddOptions<RabbitMqOptions>()
                 .Bind(configuration.GetSection(RabbitMqOptions.SectionName))
-                .Validate(options => !string.IsNullOrWhiteSpace(options.Host), "RabbitMq:Host is required.")
-                .Validate(options => options.Port is > 0 and <= 65535, "RabbitMq:Port must be between 1 and 65535.")
-                .Validate(options => !string.IsNullOrWhiteSpace(options.VirtualHost), "RabbitMq:VirtualHost is required.")
-                .Validate(options => !string.IsNullOrWhiteSpace(options.Username), "RabbitMq:Username is required.")
-                .Validate(options => !string.IsNullOrWhiteSpace(options.Password), "RabbitMq:Password is required.")
+                .Validate(options => !string.IsNullOrWhiteSpace(options.Host), "RabbitMq:Host é obrigatório.")
+                .Validate(options => options.Port is > 0 and <= 65535, "RabbitMq:Port deve estar entre 1 e 65535.")
+                .Validate(options => !string.IsNullOrWhiteSpace(options.VirtualHost), "RabbitMq:VirtualHost é obrigatório.")
+                .Validate(options => !string.IsNullOrWhiteSpace(options.Username), "RabbitMq:Username é obrigatório.")
+                .Validate(options => !string.IsNullOrWhiteSpace(options.Password), "RabbitMq:Password é obrigatório.")
                 .ValidateOnStart();
 
             services.AddSingleton<IRabbitMqConnectionChecker, RabbitMqConnectionChecker>();
@@ -83,4 +83,3 @@ namespace UsersAPI.Infrastructure
         }
     }
 }
-

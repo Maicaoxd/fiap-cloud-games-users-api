@@ -41,7 +41,7 @@ namespace UsersAPI.Api.Middlewares
             {
                 _logger.LogError(
                     exception,
-                    "Unhandled exception while processing {Method} {Path}.",
+                    "Exceção não tratada ao processar {Method} {Path}.",
                     context.Request.Method,
                     context.Request.Path);
 
@@ -50,7 +50,7 @@ namespace UsersAPI.Api.Middlewares
 
             _logger.LogWarning(
                 exception,
-                "Handled exception while processing {Method} {Path}.",
+                "Exceção tratada ao processar {Method} {Path}.",
                 context.Request.Method,
                 context.Request.Path);
         }

@@ -9,13 +9,13 @@ public sealed class PasswordHashTests
     [Fact]
     public void Deve_Criar_PasswordHash_Quando_Valor_For_Informado()
     {
-        // Arrange
+        // Preparação
         const string valor = "$2a$11$hashfakeparatestes";
 
-        // Act
+        // Execução
         var passwordHash = PasswordHash.Create(valor);
 
-        // Assert
+        // Verificação
         passwordHash.Value.ShouldBe(valor);
     }
 
@@ -26,42 +26,41 @@ public sealed class PasswordHashTests
     [InlineData("   ")]
     public void Deve_Lancar_Excecao_Quando_PasswordHash_For_Obrigatorio_E_Nao_For_Informado(string? valor)
     {
-        // Arrange
+        // Preparação
         Action acao = () => PasswordHash.Create(valor!);
 
-        // Act
+        // Execução
         var excecao = Should.Throw<ArgumentException>(acao);
 
-        // Assert
+        // Verificação
         excecao.Message.ShouldBe(DomainMessages.PasswordHash.Required);
     }
 
     [Fact]
     public void Deve_Considerar_PasswordHashes_Iguais_Quando_Valores_Forem_Iguais()
     {
-        // Arrange
+        // Preparação
         var primeiroPasswordHash = PasswordHash.Create("$2a$11$hashfakeparatestes");
         var segundoPasswordHash = PasswordHash.Create("$2a$11$hashfakeparatestes");
 
-        // Act
+        // Execução
         var saoIguais = primeiroPasswordHash.Equals(segundoPasswordHash);
 
-        // Assert
+        // Verificação
         saoIguais.ShouldBeTrue();
     }
 
     [Fact]
     public void Deve_Considerar_PasswordHashes_Diferentes_Quando_Valores_Forem_Diferentes()
     {
-        // Arrange
+        // Preparação
         var primeiroPasswordHash = PasswordHash.Create("$2a$11$hashfakeparatestes");
         var segundoPasswordHash = PasswordHash.Create("$2a$11$outrohashfake");
 
-        // Act
+        // Execução
         var saoIguais = primeiroPasswordHash.Equals(segundoPasswordHash);
 
-        // Assert
+        // Verificação
         saoIguais.ShouldBeFalse();
     }
 }
-

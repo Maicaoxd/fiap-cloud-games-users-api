@@ -14,7 +14,7 @@ public sealed class UpdateUserUseCaseTests
     [Fact]
     public async Task Deve_Atualizar_Usuario_Quando_Dados_Forem_Validos()
     {
-        // Arrange
+        // Preparação
         var adminId = Guid.NewGuid();
         var birthDate = new DateOnly(1993, 6, 17);
         var user = CreateUser();
@@ -39,10 +39,10 @@ public sealed class UpdateUserUseCaseTests
             birthDate,
             adminId);
 
-        // Act
+        // Execução
         await useCase.ExecuteAsync(command);
 
-        // Assert
+        // Verificação
         user.Name.ShouldBe("Maicon Guedes");
         user.Email.ShouldBe(Email.Create("maicon.guedes@email.com"));
         user.Cpf.ShouldBe(Cpf.Create("529.982.247-25"));
@@ -55,7 +55,7 @@ public sealed class UpdateUserUseCaseTests
     [Fact]
     public async Task Deve_Permitir_Atualizar_Usuario_Inativo()
     {
-        // Arrange
+        // Preparação
         var adminId = Guid.NewGuid();
         var user = CreateUser();
         user.Deactivate(Guid.NewGuid());
@@ -80,10 +80,10 @@ public sealed class UpdateUserUseCaseTests
             new DateOnly(1993, 6, 17),
             adminId);
 
-        // Act
+        // Execução
         await useCase.ExecuteAsync(command);
 
-        // Assert
+        // Verificação
         user.Name.ShouldBe("Maicon Guedes");
         user.Email.ShouldBe(Email.Create("maicon.guedes@email.com"));
         user.Cpf.ShouldBe(Cpf.Create("529.982.247-25"));
@@ -95,7 +95,7 @@ public sealed class UpdateUserUseCaseTests
     [Fact]
     public async Task Deve_Permitir_Atualizar_Quando_Email_E_Cpf_Pertencerem_Ao_Proprio_Usuario()
     {
-        // Arrange
+        // Preparação
         var user = CreateUserWithRecoveryData();
         var userRepository = Substitute.For<IUserRepository>();
 
@@ -118,10 +118,10 @@ public sealed class UpdateUserUseCaseTests
             user.BirthDate,
             Guid.NewGuid());
 
-        // Act
+        // Execução
         await useCase.ExecuteAsync(command);
 
-        // Assert
+        // Verificação
         user.Name.ShouldBe("Maicon Guedes");
         user.Email.ShouldBe(Email.Create("maicon@email.com"));
         user.Cpf.ShouldBe(Cpf.Create("52998224725"));
@@ -131,7 +131,7 @@ public sealed class UpdateUserUseCaseTests
     [Fact]
     public async Task Deve_Lancar_Excecao_Quando_Usuario_Nao_Existir()
     {
-        // Arrange
+        // Preparação
         var userId = Guid.NewGuid();
         var userRepository = Substitute.For<IUserRepository>();
 
@@ -148,10 +148,10 @@ public sealed class UpdateUserUseCaseTests
             new DateOnly(1993, 6, 17),
             Guid.NewGuid());
 
-        // Act
+        // Execução
         var exception = await Should.ThrowAsync<UserNotFoundException>(() => useCase.ExecuteAsync(command));
 
-        // Assert
+        // Verificação
         exception.Message.ShouldBe(ApplicationMessages.User.NotFound);
         await userRepository.DidNotReceive().UpdateAsync(Arg.Any<User>(), Arg.Any<CancellationToken>());
     }
@@ -159,7 +159,7 @@ public sealed class UpdateUserUseCaseTests
     [Fact]
     public async Task Deve_Lancar_Excecao_Quando_Email_Pertencer_A_Outro_Usuario()
     {
-        // Arrange
+        // Preparação
         var user = CreateUser();
         var anotherUser = User.Create(
             "Outro Usuario",
@@ -188,10 +188,10 @@ public sealed class UpdateUserUseCaseTests
             new DateOnly(1993, 6, 17),
             Guid.NewGuid());
 
-        // Act
+        // Execução
         var exception = await Should.ThrowAsync<EmailAlreadyRegisteredException>(() => useCase.ExecuteAsync(command));
 
-        // Assert
+        // Verificação
         exception.Message.ShouldBe(ApplicationMessages.User.EmailAlreadyRegistered);
         await userRepository.DidNotReceive().UpdateAsync(Arg.Any<User>(), Arg.Any<CancellationToken>());
     }
@@ -199,7 +199,7 @@ public sealed class UpdateUserUseCaseTests
     [Fact]
     public async Task Deve_Lancar_Excecao_Quando_Cpf_Pertencer_A_Outro_Usuario()
     {
-        // Arrange
+        // Preparação
         var user = CreateUser();
         var anotherUser = User.Create(
             "Outro Usuario",
@@ -228,10 +228,10 @@ public sealed class UpdateUserUseCaseTests
             new DateOnly(1993, 6, 17),
             Guid.NewGuid());
 
-        // Act
+        // Execução
         var exception = await Should.ThrowAsync<CpfAlreadyRegisteredException>(() => useCase.ExecuteAsync(command));
 
-        // Assert
+        // Verificação
         exception.Message.ShouldBe(ApplicationMessages.User.CpfAlreadyRegistered);
         await userRepository.DidNotReceive().UpdateAsync(Arg.Any<User>(), Arg.Any<CancellationToken>());
     }
@@ -254,4 +254,3 @@ public sealed class UpdateUserUseCaseTests
         return User.Create("Maicon Alves", email, cpf, new DateOnly(1993, 6, 17), passwordHash);
     }
 }
-

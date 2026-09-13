@@ -12,40 +12,40 @@ public sealed class ClaimsPrincipalExtensionsTests
     [Fact]
     public void GetRequiredUserId_QuandoClaimSubForGuid_DeveRetornarUserId()
     {
-        // Arrange
+        // Preparação
         var userId = Guid.NewGuid();
         var user = CreateClaimsPrincipal(new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()));
 
-        // Act
+        // Execução
         var result = user.GetRequiredUserId();
 
-        // Assert
+        // Verificação
         result.ShouldBe(userId);
     }
 
     [Fact]
     public void GetRequiredUserId_QuandoClaimSubNaoExistir_DeveLancarInvalidCredentialsException()
     {
-        // Arrange
+        // Preparação
         var user = CreateClaimsPrincipal();
 
-        // Act
+        // Execução
         var exception = Should.Throw<InvalidCredentialsException>(() => user.GetRequiredUserId());
 
-        // Assert
+        // Verificação
         exception.Message.ShouldBe(ApplicationMessages.Authentication.InvalidCredentials);
     }
 
     [Fact]
     public void GetRequiredUserId_QuandoClaimSubForInvalida_DeveLancarInvalidCredentialsException()
     {
-        // Arrange
+        // Preparação
         var user = CreateClaimsPrincipal(new Claim(JwtRegisteredClaimNames.Sub, "invalid-user-id"));
 
-        // Act
+        // Execução
         var exception = Should.Throw<InvalidCredentialsException>(() => user.GetRequiredUserId());
 
-        // Assert
+        // Verificação
         exception.Message.ShouldBe(ApplicationMessages.Authentication.InvalidCredentials);
     }
 

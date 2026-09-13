@@ -2,8 +2,6 @@
 
 Microsservico responsavel por cadastro, autenticacao, geracao de JWT e autorizacao de usuarios da FIAP Cloud Games.
 
-Este repositorio faz parte da Fase 2 do Tech Challenge e representa o microsservico independente de usuarios.
-
 ## Responsabilidades
 
 - Cadastrar usuarios.
@@ -44,6 +42,12 @@ tests/UsersAPI.Tests/
 
 k8s/               Manifestos Kubernetes do servico.
 ```
+
+## Pré-requisitos
+
+- .NET 10 SDK.
+- Docker Desktop para SQL Server e RabbitMQ locais.
+- dotnet-ef para aplicar migrations pelo Entity Framework.
 
 ## Variaveis de ambiente
 
@@ -100,7 +104,7 @@ usuario: guest
 senha: guest
 ```
 
-Se precisar recriar o ambiente do zero:
+Para apagar e recriar os dados locais (operação destrutiva, não necessária para uma parada normal):
 
 ```powershell
 docker compose -f docker-compose.dev.yml down -v
@@ -151,7 +155,7 @@ Dados do administrador:
 - data de nascimento: `1990-01-01`
 - role: `Administrator`
 
-Caso precise definir uma senha localmente, use o endpoint `POST /api/auth/forgot-password` com os dados de recuperacao acima.
+Para definir uma senha localmente, use POST /api/auth/forgot-password com email, cpf, birthDate, newPassword e confirmNewPassword. A recuperação baseada nesses dados é acadêmica e exige proteção adicional antes de publicação.
 
 ## Executar a API localmente
 
@@ -182,14 +186,18 @@ As portas exatas aparecem no terminal ou em `src/UsersAPI/Properties/launchSetti
 - `GET /health` - health check de readiness, valida se a API consegue conectar no SQL Server e no RabbitMQ.
 - `GET /health/ready` - equivalente ao readiness check, util para Kubernetes.
 
+Pelo Gateway do ambiente integrado, substitua /api por /identity e use a porta 8000. Somente cadastro, login e recuperação de senha são públicos.
+
+GET /metrics expõe métricas Prometheus. No ambiente integrado, esse endpoint é acessível somente na rede interna.
+
 ## Exemplo de cadastro
 
 ```powershell
-curl -X POST "http://localhost:<porta>/api/users" `
+curl.exe -X POST "http://localhost:<porta>/api/users" `
   -H "Content-Type: application/json" `
   -d '{
-    "name": "Maicon Guedes",
-    "email": "maicon@email.com",
+    "name": "Usuário de exemplo",
+    "email": "usuario@example.com",
     "cpf": "111.444.777-35",
     "birthDate": "1993-06-17",
     "password": "Senha@123",
@@ -200,10 +208,10 @@ curl -X POST "http://localhost:<porta>/api/users" `
 ## Exemplo de login
 
 ```powershell
-curl -X POST "http://localhost:<porta>/api/auth/login" `
+curl.exe -X POST "http://localhost:<porta>/api/auth/login" `
   -H "Content-Type: application/json" `
   -d '{
-    "email": "maicon@email.com",
+    "email": "usuario@example.com",
     "password": "Senha@123"
   }'
 ```
@@ -225,7 +233,7 @@ Publicado pela UsersAPI apos o cadastro de usuario.
 
 A UsersAPI usa `Publish` do MassTransit. Isso publica o evento na exchange do tipo `UserCreatedEvent` no RabbitMQ.
 
-Importante: enquanto nao existir um consumidor, como a futura NotificationsAPI, nao havera fila recebendo a mensagem. O evento pode aparecer como exchange/topologia, mas nao como mensagem parada em fila.
+O evento é publicado em uma exchange RabbitMQ. No ambiente integrado, a fila notifications-user-created-event entrega as mensagens à Function no Docker ou à NotificationsAPI no Kubernetes. Sem uma fila vinculada à exchange, o evento não fica armazenado para consumo.
 
 ## Testes
 
@@ -235,13 +243,7 @@ Executar a suite:
 dotnet test UsersAPI.slnx -m:1
 ```
 
-Estado atual:
-
-```text
-155 testes passando
-```
-
-Foram migrados testes do monolito relacionados a:
+A suíte cobre:
 
 - dominio de usuarios;
 - value objects de usuario;
@@ -250,17 +252,15 @@ Foram migrados testes do monolito relacionados a:
 - JWT e hash de senha;
 - middlewares e configuracoes da API.
 
-Testes de jogos e biblioteca ficaram fora deste repositorio porque pertencem aos futuros microsservicos CatalogAPI e fluxo de compra.
-
 ## Docker da API
 
 Build da imagem da UsersAPI:
 
 ```powershell
-docker build -t maicaoxd/fiap-cloud-games-users-api:0.1.2 .
+docker build -t maicaoxd/fiap-cloud-games-users-api:0.2.0 .
 ```
 
-Para executar o ambiente completo com UsersAPI, CatalogAPI, PaymentsAPI, NotificationsAPI, RabbitMQ e bancos SQL Server, use o `docker-compose.yml` do repositorio `fiap-cloud-games-orchestration`.
+Para executar o ambiente integrado com Gateway, APIs, bancos, cache, monitoração e notificações, use o `docker-compose.yml` do repositorio `fiap-cloud-games-orchestration`.
 
 ## Kubernetes
 
@@ -272,6 +272,8 @@ Os manifests ficam em `k8s/` e contem:
 - `Secret`
 - `Job` de migration
 
+Os manifestos isolados exigem SQL Server e RabbitMQ configurados no cluster. Para Gateway e observabilidade, utilize a base Kubernetes da orquestração.
+
 Aplicar manifests deste servico:
 
 ```powershell
@@ -280,8 +282,3 @@ kubectl get pods -n fiap-cloud-games
 kubectl get services -n fiap-cloud-games
 kubectl logs deployment/users-api -n fiap-cloud-games
 ```
-
-
-
-
-

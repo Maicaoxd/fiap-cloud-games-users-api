@@ -32,7 +32,7 @@ public sealed class UsersControllerTests
     [Fact]
     public async Task RegisterAsync_QuandoDadosForemValidos_DeveRetornarCreatedComUserId()
     {
-        // Arrange
+        // Preparação
         var birthDate = new DateOnly(1993, 6, 17);
         var passwordHash = PasswordHash.Create("$2a$11$hashfakeparatestes");
         var userRepository = Substitute.For<IUserRepository>();
@@ -67,10 +67,10 @@ public sealed class UsersControllerTests
             "Senha@123",
             "Senha@123");
 
-        // Act
+        // Execução
         var actionResult = await controller.RegisterAsync(request, CancellationToken.None);
 
-        // Assert
+        // Verificação
         var createdResult = actionResult.Result.ShouldBeOfType<CreatedResult>();
         var response = createdResult.Value.ShouldBeOfType<RegisterUserResponse>();
 
@@ -82,7 +82,7 @@ public sealed class UsersControllerTests
     [Fact]
     public async Task UpdateMeAsync_QuandoUsuarioAutenticadoERequestValido_DeveRetornarNoContent()
     {
-        // Arrange
+        // Preparação
         var birthDate = new DateOnly(1994, 7, 18);
         var user = CreateUser();
         var userRepository = Substitute.For<IUserRepository>();
@@ -101,10 +101,10 @@ public sealed class UsersControllerTests
             "maicon.guedes@email.com",
             birthDate);
 
-        // Act
+        // Execução
         var actionResult = await controller.UpdateMeAsync(request, CancellationToken.None);
 
-        // Assert
+        // Verificação
         actionResult.ShouldBeOfType<NoContentResult>();
         user.Name.ShouldBe("Maicon Guedes");
         user.Email.ShouldBe(Email.Create("maicon.guedes@email.com"));
@@ -117,7 +117,7 @@ public sealed class UsersControllerTests
     [Fact]
     public async Task ChangePasswordAsync_QuandoUsuarioAutenticadoERequestValido_DeveRetornarNoContent()
     {
-        // Arrange
+        // Preparação
         var user = CreateUser();
         var newPasswordHash = PasswordHash.Create("$2a$11$novohashfakeparatestes");
         var userRepository = Substitute.For<IUserRepository>();
@@ -139,10 +139,10 @@ public sealed class UsersControllerTests
             "NovaSenha@123",
             "NovaSenha@123");
 
-        // Act
+        // Execução
         var actionResult = await controller.ChangePasswordAsync(request, CancellationToken.None);
 
-        // Assert
+        // Verificação
         actionResult.ShouldBeOfType<NoContentResult>();
         user.PasswordHash.ShouldBe(newPasswordHash);
         await userRepository.Received(1).UpdateAsync(user, Arg.Any<CancellationToken>());
@@ -151,7 +151,7 @@ public sealed class UsersControllerTests
     [Fact]
     public async Task UpdateAsync_QuandoAdminAutenticadoERequestValido_DeveRetornarNoContent()
     {
-        // Arrange
+        // Preparação
         var adminId = Guid.NewGuid();
         var birthDate = new DateOnly(1993, 6, 17);
         var user = CreateUser();
@@ -175,10 +175,10 @@ public sealed class UsersControllerTests
             "529.982.247-25",
             birthDate);
 
-        // Act
+        // Execução
         var actionResult = await controller.UpdateAsync(user.Id, request, CancellationToken.None);
 
-        // Assert
+        // Verificação
         actionResult.ShouldBeOfType<NoContentResult>();
         user.Name.ShouldBe("Maicon Guedes");
         user.Email.ShouldBe(Email.Create("maicon.guedes@email.com"));
@@ -191,7 +191,7 @@ public sealed class UsersControllerTests
     [Fact]
     public async Task DeactivateAsync_QuandoAdminAutenticadoEUsuarioExistir_DeveRetornarNoContent()
     {
-        // Arrange
+        // Preparação
         var adminId = Guid.NewGuid();
         var user = CreateUser();
         var userRepository = Substitute.For<IUserRepository>();
@@ -203,10 +203,10 @@ public sealed class UsersControllerTests
 
         var controller = CreateController(userRepository, passwordHasher, adminId);
 
-        // Act
+        // Execução
         var actionResult = await controller.DeactivateAsync(user.Id, CancellationToken.None);
 
-        // Assert
+        // Verificação
         actionResult.ShouldBeOfType<NoContentResult>();
         user.IsActive.ShouldBeFalse();
         user.UpdatedBy.ShouldBe(adminId);
@@ -216,7 +216,7 @@ public sealed class UsersControllerTests
     [Fact]
     public async Task ListAsync_QuandoAdminAutenticado_DeveRetornarOkComUsuarios()
     {
-        // Arrange
+        // Preparação
         var adminId = Guid.NewGuid();
         var firstUser = CreateUser();
         var secondUser = CreateUser("Ana Guedes", "ana@email.com", "168.995.350-09");
@@ -231,10 +231,10 @@ public sealed class UsersControllerTests
 
         var controller = CreateController(userRepository, passwordHasher, adminId);
 
-        // Act
+        // Execução
         var actionResult = await controller.ListAsync(CancellationToken.None);
 
-        // Assert
+        // Verificação
         var okResult = actionResult.Result.ShouldBeOfType<OkObjectResult>();
         var response = okResult.Value.ShouldBeOfType<List<ListUserResponse>>();
 
@@ -261,102 +261,102 @@ public sealed class UsersControllerTests
     [Fact]
     public void ListAsync_DeveExigirRoleAdministrator()
     {
-        // Arrange
+        // Preparação
         var method = typeof(UsersController)
             .GetMethod(nameof(UsersController.ListAsync));
 
-        // Act
+        // Execução
         var authorizeAttribute = method!
             .GetCustomAttributes(typeof(AuthorizeAttribute), inherit: false)
             .Cast<AuthorizeAttribute>()
             .Single();
 
-        // Assert
+        // Verificação
         authorizeAttribute.Roles.ShouldBe(nameof(UserRole.Administrator));
     }
 
     [Fact]
     public void UpdateMeAsync_DeveExigirUsuarioAutenticado()
     {
-        // Arrange
+        // Preparação
         var method = typeof(UsersController)
             .GetMethod(nameof(UsersController.UpdateMeAsync));
 
-        // Act
+        // Execução
         var authorizeAttribute = method!
             .GetCustomAttributes(typeof(AuthorizeAttribute), inherit: false)
             .Cast<AuthorizeAttribute>()
             .Single();
 
-        // Assert
+        // Verificação
         authorizeAttribute.Roles.ShouldBeNull();
     }
 
     [Fact]
     public void ChangePasswordAsync_DeveExigirUsuarioAutenticado()
     {
-        // Arrange
+        // Preparação
         var method = typeof(UsersController)
             .GetMethod(nameof(UsersController.ChangePasswordAsync));
 
-        // Act
+        // Execução
         var authorizeAttribute = method!
             .GetCustomAttributes(typeof(AuthorizeAttribute), inherit: false)
             .Cast<AuthorizeAttribute>()
             .Single();
 
-        // Assert
+        // Verificação
         authorizeAttribute.Roles.ShouldBeNull();
     }
 
     [Fact]
     public void UpdateAsync_DeveExigirRoleAdministrator()
     {
-        // Arrange
+        // Preparação
         var method = typeof(UsersController)
             .GetMethod(nameof(UsersController.UpdateAsync));
 
-        // Act
+        // Execução
         var authorizeAttribute = method!
             .GetCustomAttributes(typeof(AuthorizeAttribute), inherit: false)
             .Cast<AuthorizeAttribute>()
             .Single();
 
-        // Assert
+        // Verificação
         authorizeAttribute.Roles.ShouldBe(nameof(UserRole.Administrator));
     }
 
     [Fact]
     public void DeactivateAsync_DeveExigirRoleAdministrator()
     {
-        // Arrange
+        // Preparação
         var method = typeof(UsersController)
             .GetMethod(nameof(UsersController.DeactivateAsync));
 
-        // Act
+        // Execução
         var authorizeAttribute = method!
             .GetCustomAttributes(typeof(AuthorizeAttribute), inherit: false)
             .Cast<AuthorizeAttribute>()
             .Single();
 
-        // Assert
+        // Verificação
         authorizeAttribute.Roles.ShouldBe(nameof(UserRole.Administrator));
     }
 
     [Fact]
     public void UpdateMeAsync_DeveDocumentarRespostasEsperadasNoSwagger()
     {
-        // Arrange
+        // Preparação
         var method = typeof(UsersController)
             .GetMethod(nameof(UsersController.UpdateMeAsync));
 
-        // Act
+        // Execução
         var responseTypes = method!
             .GetCustomAttributes(typeof(ProducesResponseTypeAttribute), inherit: false)
             .Cast<ProducesResponseTypeAttribute>()
             .ToDictionary(attribute => attribute.StatusCode);
 
-        // Assert
+        // Verificação
         responseTypes[StatusCodes.Status204NoContent].Type.ShouldBe(typeof(void));
         responseTypes[StatusCodes.Status400BadRequest].Type.ShouldBe(typeof(ValidationProblemDetails));
         responseTypes[StatusCodes.Status401Unauthorized].Type.ShouldBe(typeof(ProblemDetails));
@@ -368,17 +368,17 @@ public sealed class UsersControllerTests
     [Fact]
     public void ChangePasswordAsync_DeveDocumentarRespostasEsperadasNoSwagger()
     {
-        // Arrange
+        // Preparação
         var method = typeof(UsersController)
             .GetMethod(nameof(UsersController.ChangePasswordAsync));
 
-        // Act
+        // Execução
         var responseTypes = method!
             .GetCustomAttributes(typeof(ProducesResponseTypeAttribute), inherit: false)
             .Cast<ProducesResponseTypeAttribute>()
             .ToDictionary(attribute => attribute.StatusCode);
 
-        // Assert
+        // Verificação
         responseTypes[StatusCodes.Status204NoContent].Type.ShouldBe(typeof(void));
         responseTypes[StatusCodes.Status400BadRequest].Type.ShouldBe(typeof(ValidationProblemDetails));
         responseTypes[StatusCodes.Status401Unauthorized].Type.ShouldBe(typeof(ProblemDetails));
@@ -389,17 +389,17 @@ public sealed class UsersControllerTests
     [Fact]
     public void UpdateAsync_DeveDocumentarRespostasEsperadasNoSwagger()
     {
-        // Arrange
+        // Preparação
         var method = typeof(UsersController)
             .GetMethod(nameof(UsersController.UpdateAsync));
 
-        // Act
+        // Execução
         var responseTypes = method!
             .GetCustomAttributes(typeof(ProducesResponseTypeAttribute), inherit: false)
             .Cast<ProducesResponseTypeAttribute>()
             .ToDictionary(attribute => attribute.StatusCode);
 
-        // Assert
+        // Verificação
         responseTypes[StatusCodes.Status204NoContent].Type.ShouldBe(typeof(void));
         responseTypes[StatusCodes.Status400BadRequest].Type.ShouldBe(typeof(ValidationProblemDetails));
         responseTypes[StatusCodes.Status401Unauthorized].Type.ShouldBe(typeof(ProblemDetails));
@@ -412,17 +412,17 @@ public sealed class UsersControllerTests
     [Fact]
     public void DeactivateAsync_DeveDocumentarRespostasEsperadasNoSwagger()
     {
-        // Arrange
+        // Preparação
         var method = typeof(UsersController)
             .GetMethod(nameof(UsersController.DeactivateAsync));
 
-        // Act
+        // Execução
         var responseTypes = method!
             .GetCustomAttributes(typeof(ProducesResponseTypeAttribute), inherit: false)
             .Cast<ProducesResponseTypeAttribute>()
             .ToDictionary(attribute => attribute.StatusCode);
 
-        // Assert
+        // Verificação
         responseTypes[StatusCodes.Status204NoContent].Type.ShouldBe(typeof(void));
         responseTypes[StatusCodes.Status401Unauthorized].Type.ShouldBe(typeof(ProblemDetails));
         responseTypes[StatusCodes.Status403Forbidden].Type.ShouldBe(typeof(ProblemDetails));
@@ -433,17 +433,17 @@ public sealed class UsersControllerTests
     [Fact]
     public void ListAsync_DeveDocumentarRespostasEsperadasNoSwagger()
     {
-        // Arrange
+        // Preparação
         var method = typeof(UsersController)
             .GetMethod(nameof(UsersController.ListAsync));
 
-        // Act
+        // Execução
         var responseTypes = method!
             .GetCustomAttributes(typeof(ProducesResponseTypeAttribute), inherit: false)
             .Cast<ProducesResponseTypeAttribute>()
             .ToDictionary(attribute => attribute.StatusCode);
 
-        // Assert
+        // Verificação
         responseTypes[StatusCodes.Status200OK].Type.ShouldBe(typeof(IReadOnlyCollection<ListUserResponse>));
         responseTypes[StatusCodes.Status401Unauthorized].Type.ShouldBe(typeof(ProblemDetails));
         responseTypes[StatusCodes.Status403Forbidden].Type.ShouldBe(typeof(ProblemDetails));
@@ -504,5 +504,4 @@ public sealed class UsersControllerTests
         return User.Create(name, emailValueObject, cpfValueObject, new DateOnly(1993, 6, 17), passwordHash);
     }
 }
-
 

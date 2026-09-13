@@ -9,14 +9,14 @@ public sealed class BCryptPasswordHasherTests
     [Fact]
     public void Deve_Gerar_PasswordHash_Quando_Senha_For_Valida()
     {
-        // Arrange
+        // Preparação
         var password = Password.Create("Senha@123");
         var passwordHasher = new BCryptPasswordHasher();
 
-        // Act
+        // Execução
         var passwordHash = passwordHasher.Hash(password);
 
-        // Assert
+        // Verificação
         string.IsNullOrWhiteSpace(passwordHash.Value).ShouldBeFalse();
         passwordHash.Value.ShouldNotBe(password.Value);
     }
@@ -24,47 +24,46 @@ public sealed class BCryptPasswordHasherTests
     [Fact]
     public void Deve_Verificar_Senha_Quando_Valor_Original_For_Correto()
     {
-        // Arrange
+        // Preparação
         var password = Password.Create("Senha@123");
         var passwordHasher = new BCryptPasswordHasher();
         var passwordHash = passwordHasher.Hash(password);
 
-        // Act
+        // Execução
         var senhaCorreta = passwordHasher.Verify("Senha@123", passwordHash);
 
-        // Assert
+        // Verificação
         senhaCorreta.ShouldBeTrue();
     }
 
     [Fact]
     public void Deve_Nao_Verificar_Senha_Quando_Valor_Original_For_Incorreto()
     {
-        // Arrange
+        // Preparação
         var password = Password.Create("Senha@123");
         var wrongPassword = Password.Create("Outra@123");
         var passwordHasher = new BCryptPasswordHasher();
         var passwordHash = passwordHasher.Hash(password);
 
-        // Act
+        // Execução
         var senhaCorreta = passwordHasher.Verify(wrongPassword.Value, passwordHash);
 
-        // Assert
+        // Verificação
         senhaCorreta.ShouldBeFalse();
     }
 
     [Fact]
     public void Deve_Nao_Verificar_Senha_Quando_Valor_For_Nulo()
     {
-        // Arrange
+        // Preparação
         var password = Password.Create("Senha@123");
         var passwordHasher = new BCryptPasswordHasher();
         var passwordHash = passwordHasher.Hash(password);
 
-        // Act
+        // Execução
         var senhaCorreta = passwordHasher.Verify((string?)null, passwordHash);
 
-        // Assert
+        // Verificação
         senhaCorreta.ShouldBeFalse();
     }
 }
-

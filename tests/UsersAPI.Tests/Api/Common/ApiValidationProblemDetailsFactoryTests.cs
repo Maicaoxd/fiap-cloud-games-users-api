@@ -13,7 +13,7 @@ public sealed class ApiValidationProblemDetailsFactoryTests
     [Fact]
     public void CreateInvalidModelStateResponse_QuandoModelStateForInvalido_DeveRetornarBadRequestComCamposEmCamelCase()
     {
-        // Arrange
+        // Preparação
         var httpContext = new DefaultHttpContext();
         httpContext.Request.Path = "/api/users";
 
@@ -27,10 +27,10 @@ public sealed class ApiValidationProblemDetailsFactoryTests
             new ActionDescriptor(),
             modelState);
 
-        // Act
+        // Execução
         var actionResult = ApiValidationProblemDetailsFactory.CreateInvalidModelStateResponse(actionContext);
 
-        // Assert
+        // Verificação
         var badRequestResult = actionResult.ShouldBeOfType<BadRequestObjectResult>();
         var problemDetails = badRequestResult.Value.ShouldBeOfType<ValidationProblemDetails>();
 

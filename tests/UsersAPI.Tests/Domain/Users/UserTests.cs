@@ -10,17 +10,17 @@ public sealed class UserTests
     [Fact]
     public void Deve_Criar_Usuario_Quando_Dados_Forem_Validos()
     {
-        // Arrange
+        // Preparação
         const string nome = "Maicon Guedes";
         var email = Email.Create("maicon@email.com");
         var cpf = Cpf.Create("529.982.247-25");
         var birthDate = new DateOnly(1993, 6, 17);
         var passwordHash = PasswordHash.Create("$2a$11$hashfakeparatestes");
 
-        // Act
+        // Execução
         var usuario = User.Create(nome, email, cpf, birthDate, passwordHash);
 
-        // Assert
+        // Verificação
         usuario.Id.ShouldNotBe(Guid.Empty);
         usuario.Name.ShouldBe(nome);
         usuario.Email.ShouldBe(email);
@@ -38,26 +38,26 @@ public sealed class UserTests
     [Fact]
     public void Deve_Criar_Usuario_Com_Auditoria_Quando_Criado_Por_Outro_Usuario()
     {
-        // Arrange
+        // Preparação
         var criadoPor = Guid.NewGuid();
 
-        // Act
+        // Execução
         var usuario = CreateUser(createdBy: criadoPor);
 
-        // Assert
+        // Verificação
         usuario.CreatedBy.ShouldBe(criadoPor);
     }
 
     [Fact]
     public void Deve_Lancar_Excecao_Quando_Criar_Usuario_Com_Responsavel_Invalido()
     {
-        // Arrange
+        // Preparação
         Action acao = () => CreateUser(createdBy: Guid.Empty);
 
-        // Act
+        // Execução
         var excecao = Should.Throw<ArgumentException>(acao);
 
-        // Assert
+        // Verificação
         excecao.Message.ShouldBe(DomainMessages.Entity.ResponsibleForChangeRequired);
     }
 
@@ -68,20 +68,20 @@ public sealed class UserTests
     [InlineData("   ")]
     public void Deve_Lancar_Excecao_Quando_Nome_For_Obrigatorio_E_Nao_For_Informado(string? nome)
     {
-        // Arrange
+        // Preparação
         Action acao = () => CreateUser(name: nome!);
 
-        // Act
+        // Execução
         var excecao = Should.Throw<ArgumentException>(acao);
 
-        // Assert
+        // Verificação
         excecao.Message.ShouldBe(DomainMessages.User.NameRequired);
     }
 
     [Fact]
     public void Deve_Lancar_Excecao_Quando_Email_For_Obrigatorio_E_Nao_For_Informado()
     {
-        // Arrange
+        // Preparação
         Action acao = () => User.Create(
             "Maicon Guedes",
             null!,
@@ -89,17 +89,17 @@ public sealed class UserTests
             new DateOnly(1993, 6, 17),
             PasswordHash.Create("$2a$11$hashfakeparatestes"));
 
-        // Act
+        // Execução
         var excecao = Should.Throw<ArgumentException>(acao);
 
-        // Assert
+        // Verificação
         excecao.Message.ShouldBe(DomainMessages.Email.Required);
     }
 
     [Fact]
     public void Deve_Lancar_Excecao_Quando_Cpf_For_Obrigatorio_E_Nao_For_Informado()
     {
-        // Arrange
+        // Preparação
         Action acao = () => User.Create(
             "Maicon Guedes",
             Email.Create("maicon@email.com"),
@@ -107,17 +107,17 @@ public sealed class UserTests
             new DateOnly(1993, 6, 17),
             PasswordHash.Create("$2a$11$hashfakeparatestes"));
 
-        // Act
+        // Execução
         var excecao = Should.Throw<ArgumentException>(acao);
 
-        // Assert
+        // Verificação
         excecao.Message.ShouldBe(DomainMessages.Cpf.Required);
     }
 
     [Fact]
     public void Deve_Lancar_Excecao_Quando_Data_De_Nascimento_For_Obrigatoria_E_Nao_For_Informada()
     {
-        // Arrange
+        // Preparação
         Action acao = () => User.Create(
             "Maicon Guedes",
             Email.Create("maicon@email.com"),
@@ -125,17 +125,17 @@ public sealed class UserTests
             default,
             PasswordHash.Create("$2a$11$hashfakeparatestes"));
 
-        // Act
+        // Execução
         var excecao = Should.Throw<ArgumentException>(acao);
 
-        // Assert
+        // Verificação
         excecao.Message.ShouldBe(DomainMessages.User.BirthDateRequired);
     }
 
     [Fact]
     public void Deve_Lancar_Excecao_Quando_PasswordHash_For_Obrigatorio_E_Nao_For_Informado()
     {
-        // Arrange
+        // Preparação
         Action acao = () => User.Create(
             "Maicon Guedes",
             Email.Create("maicon@email.com"),
@@ -143,24 +143,24 @@ public sealed class UserTests
             new DateOnly(1993, 6, 17),
             null!);
 
-        // Act
+        // Execução
         var excecao = Should.Throw<ArgumentException>(acao);
 
-        // Assert
+        // Verificação
         excecao.Message.ShouldBe(DomainMessages.PasswordHash.Required);
     }
 
     [Fact]
     public void Deve_Desativar_Usuario_Quando_Usuario_Estiver_Ativo()
     {
-        // Arrange
+        // Preparação
         var desativadoPor = Guid.NewGuid();
         var usuario = CreateUser();
 
-        // Act
+        // Execução
         usuario.Deactivate(desativadoPor);
 
-        // Assert
+        // Verificação
         usuario.IsActive.ShouldBeFalse();
         usuario.UpdatedAt.ShouldNotBeNull();
         usuario.UpdatedBy.ShouldBe(desativadoPor);
@@ -169,16 +169,16 @@ public sealed class UserTests
     [Fact]
     public void Deve_Reativar_Usuario_Quando_Usuario_Estiver_Inativo()
     {
-        // Arrange
+        // Preparação
         var desativadoPor = Guid.NewGuid();
         var ativadoPor = Guid.NewGuid();
         var usuario = CreateUser();
         usuario.Deactivate(desativadoPor);
 
-        // Act
+        // Execução
         usuario.Activate(ativadoPor);
 
-        // Assert
+        // Verificação
         usuario.IsActive.ShouldBeTrue();
         usuario.UpdatedAt.ShouldNotBeNull();
         usuario.UpdatedBy.ShouldBe(ativadoPor);
@@ -187,43 +187,43 @@ public sealed class UserTests
     [Fact]
     public void Deve_Lancar_Excecao_Quando_Desativar_Usuario_Sem_Responsavel_Valido()
     {
-        // Arrange
+        // Preparação
         var usuario = CreateUser();
         Action acao = () => usuario.Deactivate(Guid.Empty);
 
-        // Act
+        // Execução
         var excecao = Should.Throw<ArgumentException>(acao);
 
-        // Assert
+        // Verificação
         excecao.Message.ShouldBe(DomainMessages.Entity.ResponsibleForChangeRequired);
     }
 
     [Fact]
     public void Deve_Lancar_Excecao_Quando_Reativar_Usuario_Sem_Responsavel_Valido()
     {
-        // Arrange
+        // Preparação
         var usuario = CreateUser();
         usuario.Deactivate(Guid.NewGuid());
         Action acao = () => usuario.Activate(Guid.Empty);
 
-        // Act
+        // Execução
         var excecao = Should.Throw<ArgumentException>(acao);
 
-        // Assert
+        // Verificação
         excecao.Message.ShouldBe(DomainMessages.Entity.ResponsibleForChangeRequired);
     }
 
     [Fact]
     public void Deve_Alterar_Nome_Quando_Nome_For_Valido()
     {
-        // Arrange
+        // Preparação
         var atualizadoPor = Guid.NewGuid();
         var usuario = CreateUser(name: "Maicon Alves");
 
-        // Act
+        // Execução
         usuario.ChangeName("Maicon Guedes", atualizadoPor);
 
-        // Assert
+        // Verificação
         usuario.Name.ShouldBe("Maicon Guedes");
         usuario.UpdatedAt.ShouldNotBeNull();
         usuario.UpdatedBy.ShouldBe(atualizadoPor);
@@ -236,43 +236,43 @@ public sealed class UserTests
     [InlineData("   ")]
     public void Deve_Lancar_Excecao_Quando_Alterar_Nome_Para_Valor_Obrigatorio_E_Nao_Informado(string? nome)
     {
-        // Arrange
+        // Preparação
         var usuario = CreateUser();
         Action acao = () => usuario.ChangeName(nome!, Guid.NewGuid());
 
-        // Act
+        // Execução
         var excecao = Should.Throw<ArgumentException>(acao);
 
-        // Assert
+        // Verificação
         excecao.Message.ShouldBe(DomainMessages.User.NameRequired);
     }
 
     [Fact]
     public void Deve_Lancar_Excecao_Quando_Alterar_Nome_Sem_Responsavel_Valido()
     {
-        // Arrange
+        // Preparação
         var usuario = CreateUser();
         Action acao = () => usuario.ChangeName("Maicon Guedes", Guid.Empty);
 
-        // Act
+        // Execução
         var excecao = Should.Throw<ArgumentException>(acao);
 
-        // Assert
+        // Verificação
         excecao.Message.ShouldBe(DomainMessages.Entity.ResponsibleForChangeRequired);
     }
 
     [Fact]
     public void Deve_Alterar_Email_Quando_Email_For_Valido()
     {
-        // Arrange
+        // Preparação
         var atualizadoPor = Guid.NewGuid();
         var usuario = CreateUser();
         var novoEmail = Email.Create("novo@email.com");
 
-        // Act
+        // Execução
         usuario.ChangeEmail(novoEmail, atualizadoPor);
 
-        // Assert
+        // Verificação
         usuario.Email.ShouldBe(novoEmail);
         usuario.UpdatedAt.ShouldNotBeNull();
         usuario.UpdatedBy.ShouldBe(atualizadoPor);
@@ -281,44 +281,44 @@ public sealed class UserTests
     [Fact]
     public void Deve_Lancar_Excecao_Quando_Alterar_Email_Para_Valor_Obrigatorio_E_Nao_Informado()
     {
-        // Arrange
+        // Preparação
         var usuario = CreateUser();
         Action acao = () => usuario.ChangeEmail(null!, Guid.NewGuid());
 
-        // Act
+        // Execução
         var excecao = Should.Throw<ArgumentException>(acao);
 
-        // Assert
+        // Verificação
         excecao.Message.ShouldBe(DomainMessages.Email.Required);
     }
 
     [Fact]
     public void Deve_Lancar_Excecao_Quando_Alterar_Email_Sem_Responsavel_Valido()
     {
-        // Arrange
+        // Preparação
         var usuario = CreateUser();
         var novoEmail = Email.Create("novo@email.com");
         Action acao = () => usuario.ChangeEmail(novoEmail, Guid.Empty);
 
-        // Act
+        // Execução
         var excecao = Should.Throw<ArgumentException>(acao);
 
-        // Assert
+        // Verificação
         excecao.Message.ShouldBe(DomainMessages.Entity.ResponsibleForChangeRequired);
     }
 
     [Fact]
     public void Deve_Alterar_Senha_Quando_PasswordHash_For_Valido()
     {
-        // Arrange
+        // Preparação
         var atualizadoPor = Guid.NewGuid();
         var usuario = CreateUser();
         var novoPasswordHash = PasswordHash.Create("$2a$11$novohashfakeparatestes");
 
-        // Act
+        // Execução
         usuario.ChangePassword(novoPasswordHash, atualizadoPor);
 
-        // Assert
+        // Verificação
         usuario.PasswordHash.ShouldBe(novoPasswordHash);
         usuario.UpdatedAt.ShouldNotBeNull();
         usuario.UpdatedBy.ShouldBe(atualizadoPor);
@@ -327,44 +327,44 @@ public sealed class UserTests
     [Fact]
     public void Deve_Lancar_Excecao_Quando_Alterar_Senha_Para_PasswordHash_Obrigatorio_E_Nao_Informado()
     {
-        // Arrange
+        // Preparação
         var usuario = CreateUser();
         Action acao = () => usuario.ChangePassword(null!, Guid.NewGuid());
 
-        // Act
+        // Execução
         var excecao = Should.Throw<ArgumentException>(acao);
 
-        // Assert
+        // Verificação
         excecao.Message.ShouldBe(DomainMessages.PasswordHash.Required);
     }
 
     [Fact]
     public void Deve_Lancar_Excecao_Quando_Alterar_Senha_Sem_Responsavel_Valido()
     {
-        // Arrange
+        // Preparação
         var usuario = CreateUser();
         var novoPasswordHash = PasswordHash.Create("$2a$11$novohashfakeparatestes");
         Action acao = () => usuario.ChangePassword(novoPasswordHash, Guid.Empty);
 
-        // Act
+        // Execução
         var excecao = Should.Throw<ArgumentException>(acao);
 
-        // Assert
+        // Verificação
         excecao.Message.ShouldBe(DomainMessages.Entity.ResponsibleForChangeRequired);
     }
 
     [Fact]
     public void Deve_Atualizar_Perfil_Quando_Nome_E_Email_Forem_Validos()
     {
-        // Arrange
+        // Preparação
         var atualizadoPor = Guid.NewGuid();
         var usuario = CreateUser(name: "Maicon Alves");
         var novoEmail = Email.Create("maicon.guedes@email.com");
 
-        // Act
+        // Execução
         usuario.UpdateProfile("Maicon Guedes", novoEmail, atualizadoPor);
 
-        // Assert
+        // Verificação
         usuario.Name.ShouldBe("Maicon Guedes");
         usuario.Email.ShouldBe(novoEmail);
         usuario.Cpf.ShouldBe(Cpf.Create("529.982.247-25"));
@@ -376,16 +376,16 @@ public sealed class UserTests
     [Fact]
     public void Deve_Atualizar_Perfil_Com_Cpf_E_Data_De_Nascimento_Quando_Dados_Forem_Validos()
     {
-        // Arrange
+        // Preparação
         var atualizadoPor = Guid.NewGuid();
         var usuario = CreateUser(name: "Maicon Alves");
         var novoEmail = Email.Create("maicon.guedes@email.com");
         var cpf = Cpf.Create("286.255.878-87");
 
-        // Act
+        // Execução
         usuario.UpdateProfile("Maicon Guedes", novoEmail, cpf, new DateOnly(1991, 2, 3), atualizadoPor);
 
-        // Assert
+        // Verificação
         usuario.Name.ShouldBe("Maicon Guedes");
         usuario.Email.ShouldBe(novoEmail);
         usuario.Cpf.ShouldBe(cpf);
@@ -397,13 +397,13 @@ public sealed class UserTests
     [Fact]
     public void Deve_Validar_Dados_De_Recuperacao_Quando_Cpf_E_Data_Corresponderem()
     {
-        // Arrange
+        // Preparação
         var usuario = CreateUser();
 
-        // Act
+        // Execução
         var matches = usuario.MatchesRecoveryData(Cpf.Create("52998224725"), new DateOnly(1993, 6, 17));
 
-        // Assert
+        // Verificação
         matches.ShouldBeTrue();
     }
 
@@ -427,4 +427,3 @@ public sealed class UserTests
             createdBy);
     }
 }
-

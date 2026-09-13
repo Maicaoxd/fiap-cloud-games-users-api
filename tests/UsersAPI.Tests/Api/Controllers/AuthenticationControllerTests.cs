@@ -19,7 +19,7 @@ public sealed class AuthenticationControllerTests
     [Fact]
     public async Task LoginAsync_QuandoCredenciaisForemValidas_DeveRetornarOkComAccessToken()
     {
-        // Arrange
+        // Preparação
         var user = CreateUser();
         var email = user.Email;
         var passwordHash = user.PasswordHash;
@@ -50,10 +50,10 @@ public sealed class AuthenticationControllerTests
             "maicon@email.com",
             "Senha@123");
 
-        // Act
+        // Execução
         var actionResult = await controller.LoginAsync(request, CancellationToken.None);
 
-        // Assert
+        // Verificação
         var okResult = actionResult.Result.ShouldBeOfType<OkObjectResult>();
         var response = okResult.Value.ShouldBeOfType<LoginResponse>();
 
@@ -66,7 +66,7 @@ public sealed class AuthenticationControllerTests
     [Fact]
     public async Task ForgotPasswordAsync_QuandoDadosForemValidos_DeveRetornarNoContent()
     {
-        // Arrange
+        // Preparação
         var email = Email.Create("maicon@email.com");
         var cpf = Cpf.Create("529.982.247-25");
         var passwordHash = PasswordHash.Create("$2a$11$hashfakeparatestes");
@@ -97,10 +97,10 @@ public sealed class AuthenticationControllerTests
             "NovaSenha@123",
             "NovaSenha@123");
 
-        // Act
+        // Execução
         var actionResult = await controller.ForgotPasswordAsync(request, CancellationToken.None);
 
-        // Assert
+        // Verificação
         actionResult.ShouldBeOfType<NoContentResult>();
         user.PasswordHash.ShouldBe(newPasswordHash);
         await userRepository.Received(1).UpdateAsync(user, Arg.Any<CancellationToken>());
@@ -109,17 +109,17 @@ public sealed class AuthenticationControllerTests
     [Fact]
     public void LoginAsync_DeveDocumentarRespostasEsperadasNoSwagger()
     {
-        // Arrange
+        // Preparação
         var method = typeof(AuthenticationController)
             .GetMethod(nameof(AuthenticationController.LoginAsync));
 
-        // Act
+        // Execução
         var responseTypes = method!
             .GetCustomAttributes(typeof(ProducesResponseTypeAttribute), inherit: false)
             .Cast<ProducesResponseTypeAttribute>()
             .ToDictionary(attribute => attribute.StatusCode);
 
-        // Assert
+        // Verificação
         responseTypes[StatusCodes.Status200OK].Type.ShouldBe(typeof(LoginResponse));
         responseTypes[StatusCodes.Status400BadRequest].Type.ShouldBe(typeof(ValidationProblemDetails));
         responseTypes[StatusCodes.Status401Unauthorized].Type.ShouldBe(typeof(ProblemDetails));
@@ -130,17 +130,17 @@ public sealed class AuthenticationControllerTests
     [Fact]
     public void ForgotPasswordAsync_DeveDocumentarRespostasEsperadasNoSwagger()
     {
-        // Arrange
+        // Preparação
         var method = typeof(AuthenticationController)
             .GetMethod(nameof(AuthenticationController.ForgotPasswordAsync));
 
-        // Act
+        // Execução
         var responseTypes = method!
             .GetCustomAttributes(typeof(ProducesResponseTypeAttribute), inherit: false)
             .Cast<ProducesResponseTypeAttribute>()
             .ToDictionary(attribute => attribute.StatusCode);
 
-        // Assert
+        // Verificação
         responseTypes[StatusCodes.Status204NoContent].Type.ShouldBe(typeof(void));
         responseTypes[StatusCodes.Status400BadRequest].Type.ShouldBe(typeof(ValidationProblemDetails));
         responseTypes[StatusCodes.Status500InternalServerError].Type.ShouldBe(typeof(ProblemDetails));
@@ -155,4 +155,3 @@ public sealed class AuthenticationControllerTests
         return User.Create("Maicon Guedes", email, cpf, new DateOnly(1993, 6, 17), passwordHash);
     }
 }
-

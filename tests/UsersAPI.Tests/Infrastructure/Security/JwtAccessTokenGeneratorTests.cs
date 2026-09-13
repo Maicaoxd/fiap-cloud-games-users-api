@@ -11,7 +11,7 @@ public sealed class JwtAccessTokenGeneratorTests
     [Fact]
     public void Generate_QuandoUsuarioForValido_DeveGerarAccessTokenComClaimsDoUsuario()
     {
-        // Arrange
+        // Preparação
         var jwtOptions = new JwtOptions(
             "FiapCloudGames",
             "FiapCloudGames",
@@ -24,10 +24,10 @@ public sealed class JwtAccessTokenGeneratorTests
         var user = User.Create("Maicon Guedes", email, cpf, new DateOnly(1993, 6, 17), passwordHash);
         var accessTokenGenerator = new JwtAccessTokenGenerator(jwtOptions);
 
-        // Act
+        // Execução
         var accessToken = accessTokenGenerator.Generate(user);
 
-        // Assert
+        // Verificação
         accessToken.ShouldNotBeNullOrWhiteSpace();
 
         var token = new JwtSecurityTokenHandler().ReadJwtToken(accessToken);
@@ -41,4 +41,3 @@ public sealed class JwtAccessTokenGeneratorTests
         token.ValidTo.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(65));
     }
 }
-

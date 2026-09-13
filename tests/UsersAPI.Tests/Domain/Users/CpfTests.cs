@@ -9,13 +9,13 @@ public sealed class CpfTests
     [Fact]
     public void Deve_Criar_Cpf_Quando_Valor_For_Valido()
     {
-        // Arrange
+        // Preparação
         const string value = "529.982.247-25";
 
-        // Act
+        // Execução
         var cpf = Cpf.Create(value);
 
-        // Assert
+        // Verificação
         cpf.Value.ShouldBe("52998224725");
     }
 
@@ -25,13 +25,13 @@ public sealed class CpfTests
     [InlineData(" ")]
     public void Deve_Lancar_Excecao_Quando_Cpf_For_Obrigatorio(string? value)
     {
-        // Arrange
+        // Preparação
         Action action = () => Cpf.Create(value!);
 
-        // Act
+        // Execução
         var exception = Should.Throw<ArgumentException>(action);
 
-        // Assert
+        // Verificação
         exception.Message.ShouldBe(DomainMessages.Cpf.Required);
     }
 
@@ -41,26 +41,25 @@ public sealed class CpfTests
     [InlineData("529.982.247-24")]
     public void Deve_Lancar_Excecao_Quando_Cpf_For_Invalido(string value)
     {
-        // Arrange
+        // Preparação
         Action action = () => Cpf.Create(value);
 
-        // Act
+        // Execução
         var exception = Should.Throw<ArgumentException>(action);
 
-        // Assert
+        // Verificação
         exception.Message.ShouldBe(DomainMessages.Cpf.InvalidFormat);
     }
 
     [Fact]
     public void Deve_Comparar_Cpf_Por_Valor()
     {
-        // Arrange
+        // Preparação
         var firstCpf = Cpf.Create("529.982.247-25");
         var secondCpf = Cpf.Create("52998224725");
 
-        // Act & Assert
+        // Execução e verificação
         firstCpf.ShouldBe(secondCpf);
         firstCpf.GetHashCode().ShouldBe(secondCpf.GetHashCode());
     }
 }
-
