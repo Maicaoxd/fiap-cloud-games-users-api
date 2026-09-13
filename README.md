@@ -257,7 +257,7 @@ A suíte cobre:
 Build da imagem da UsersAPI:
 
 ```powershell
-docker build -t maicaoxd/fiap-cloud-games-users-api:0.2.0 .
+docker build -t maicaoxd/fiap-cloud-games-users-api:0.2.1 .
 ```
 
 Para executar o ambiente integrado com Gateway, APIs, bancos, cache, monitoração e notificações, use o `docker-compose.yml` do repositorio `fiap-cloud-games-orchestration`.
