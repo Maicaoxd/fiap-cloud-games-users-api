@@ -1,4 +1,5 @@
 ﻿using MassTransit;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using UsersAPI.Application.Abstractions.Messaging;
@@ -29,6 +30,10 @@ namespace UsersAPI.Infrastructure
         {
             var connectionString = configuration.GetConnectionString("DefaultConnection")
                 ?? throw new InvalidOperationException("A cadeia de conexão DefaultConnection não foi configurada.");
+
+            var password = configuration["SqlServer:Password"];
+            if (!string.IsNullOrEmpty(password))
+                connectionString = new SqlConnectionStringBuilder(connectionString) { Password = password }.ConnectionString;
 
             services.AddDbContext<UsersDbContext>(options =>
                 options.UseSqlServer(connectionString));
