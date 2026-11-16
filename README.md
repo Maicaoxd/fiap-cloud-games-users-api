@@ -1,4 +1,4 @@
-﻿# FIAP Cloud Games - UsersAPI
+# FIAP Cloud Games - UsersAPI
 
 Microsservico responsavel por cadastro, autenticacao, geracao de JWT e autorizacao de usuarios da FIAP Cloud Games.
 
@@ -49,6 +49,12 @@ k8s/               Manifestos Kubernetes do servico.
 - Docker Desktop para SQL Server e RabbitMQ locais.
 - dotnet-ef para aplicar migrations pelo Entity Framework.
 
+## Configuração local
+
+Em um checkout novo, copie `.env.example` para `.env` e preencha os valores usados pelo Compose. Para executar com `dotnet run`, copie `src/UsersAPI/appsettings.json` para `src/UsersAPI/appsettings.Development.json` e configure as conexões e credenciais nesse arquivo privado. Variáveis de ambiente também podem fornecer os valores. Os arquivos locais são ignorados pelo Git e pelo build Docker.
+
+Para Kubernetes local, copie `k8s/local-secrets.example.yaml` para `k8s/local-secrets.yaml` e preencha os valores antes de aplicar os manifestos.
+
 ## Variaveis de ambiente
 
 | Variavel | Finalidade |
@@ -64,18 +70,6 @@ k8s/               Manifestos Kubernetes do servico.
 | `RabbitMq__Username` | Usuario do RabbitMQ. |
 | `RabbitMq__Password` | Senha do RabbitMQ. |
 
-Configuracao local padrao em `src/UsersAPI/appsettings.json`:
-
-```text
-SQL Server: localhost,1433
-Database: FiapCloudGamesUsers
-User: sa
-Password: Fcg@123456
-RabbitMQ: localhost:5672
-RabbitMQ Management: http://localhost:15672
-```
-
-Observacao: os segredos deste repositorio sao apenas para desenvolvimento local academico.
 
 ## Subir dependencias locais
 
@@ -100,8 +94,8 @@ RabbitMQ Management:
 
 ```text
 http://localhost:15672
-usuario: guest
-senha: guest
+usuario: valor de FCG_RABBITMQ_USERNAME
+senha: valor de FCG_RABBITMQ_PASSWORD
 ```
 
 Para apagar e recriar os dados locais (operação destrutiva, não necessária para uma parada normal):
@@ -125,7 +119,7 @@ Validar no SQL Server Management Studio:
 Server: localhost,1433
 Authentication: SQL Server Authentication
 Login: sa
-Password: Fcg@123456
+Password: valor configurado em .env
 Trust server certificate: marcado
 ```
 
